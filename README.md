@@ -1,8 +1,6 @@
-Here’s a draft for your README file:
+# 50 Years of software development - Waht could possibly go wrong?
 
----
-
-# VotR
+## VotR
 
 Welcome to **VotR**, an interactive voting platform designed for conference sessions. VotR allows speakers to create engaging presentations by pre-defining sessions with multiple-choice questions and answer options. Attendees can vote live during the session, making talks more interactive and memorable.
 
