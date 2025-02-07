@@ -55,9 +55,9 @@ VotR is built using a modern, scalable, and highly reliable tech stack:
 
 ### Running Locally
 
-1. Start the Dapr sidecar:
+1. Start the Aspire project:
    ```bash
-   dapr run
+   dotnet run
    ```
 
 ---

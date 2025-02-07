@@ -7,8 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Abstractions\" />
-    <Folder Include="DomainModels\" />
+    <Folder Include="DataTransferObjects\Details\" />
+    <Folder Include="Mappings\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Votr.Core\Votr.Core.csproj" />
   </ItemGroup>
 
 </Project>

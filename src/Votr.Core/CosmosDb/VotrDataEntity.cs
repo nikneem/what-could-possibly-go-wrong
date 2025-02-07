@@ -2,10 +2,10 @@
 
 namespace Votr.Core.CosmosDb;
 
-public abstract class SpreaViewDataEntity<TId>
+public abstract class VotrDataEntity<TId>
 {
     [JsonProperty(PropertyName = "id")]
     public required TId Id { get; set; }
 
-    public abstract string EntityType { get; }
+    public virtual string EntityType => GetType().Name;
 }
