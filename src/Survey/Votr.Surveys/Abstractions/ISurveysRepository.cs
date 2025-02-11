@@ -8,4 +8,5 @@ public interface ISurveysRepository
     Task<List<SurveyDetailsResponse>> List(CancellationToken cancellationToken);
     Task<Survey> Get(Guid id, CancellationToken cancellationToken);
     Task<bool> Save(Survey domainModel, CancellationToken cancellationToken);
+    Task<bool> Cleanup(CancellationToken cancellationToken);
 }

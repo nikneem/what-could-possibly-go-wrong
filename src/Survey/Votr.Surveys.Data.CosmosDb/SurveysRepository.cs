@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
@@ -20,6 +21,9 @@ public class SurveysRepository (CosmosClient cosmos,
     ILogger<SurveysRepository> logger
     ) : CosmosDbRepositoryBase(cosmos, options, logger), ISurveysRepository
 {
+
+    private const string SurveysPartitionId = "surveys";
+
     public async Task<List<SurveyDetailsResponse>> List(CancellationToken cancellationToken)
     {
         var container  = GetContainer();
@@ -41,7 +45,7 @@ public class SurveysRepository (CosmosClient cosmos,
     public async Task<Survey> Get(Guid id, CancellationToken cancellationToken)
     {
         var container = GetContainer();
-        var response = await container.ReadItemAsync<SurveyEntity>(id.ToString(), new PartitionKey(id.ToString()), cancellationToken: cancellationToken);
+        var response = await container.ReadItemAsync<SurveyEntity>(id.ToString(), new PartitionKey(SurveysPartitionId), cancellationToken: cancellationToken);
         return response.Resource.ToDomainModel();
     }
 
@@ -67,12 +71,38 @@ public class SurveysRepository (CosmosClient cosmos,
 
             if (domainModel.TrackingState == TrackingState.Modified)
             {
-                var itemResponse = await container.UpsertItemAsync(entity, new PartitionKey(entity.Id.ToString()), cancellationToken: cancellationToken);
+                var itemResponse = await container.UpsertItemAsync(entity, new PartitionKey(SurveysPartitionId), cancellationToken: cancellationToken);
                 return itemResponse.StatusCode == HttpStatusCode.OK;
             }
             return false;
         }
         return true;
+    }
+
+    public async Task<bool> Cleanup(CancellationToken cancellationToken)
+    {
+        // Cleanup all surveys older than two months
+        var container = GetContainer();
+
+        var expiryDate = DateTimeOffset.Now.AddMonths(-2);
+
+        var oldSurveysQuery = container.GetItemLinqQueryable<SurveyEntity>()
+            .Where(ent => ent.EntityType == nameof(SurveyEntity))
+            .Where(ent => ent.ExpiresOn < expiryDate)
+            .ToFeedIterator();
+
+        var batch = container.CreateTransactionalBatch(new PartitionKey(SurveysPartitionId));
+        while (oldSurveysQuery.HasMoreResults)
+        {
+            var entityBatch = await oldSurveysQuery.ReadNextAsync(cancellationToken);
+            foreach (var entity in entityBatch)
+            {
+                batch.DeleteItem(entity.Id.ToString());
+            }
+        }
+
+        var outcome = await batch.ExecuteAsync(cancellationToken);
+        return outcome.IsSuccessStatusCode;
     }
 
     private Container GetContainer()
