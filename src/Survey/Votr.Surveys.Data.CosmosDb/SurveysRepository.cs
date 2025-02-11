@@ -1,29 +1,48 @@
-﻿using System.Net;
+﻿using System.Linq;
+using System.Net;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Votr.Core.Configuration;
 using Votr.Core.CosmosDb;
 using Votr.Core.DDD.Enums;
 using Votr.Surveys.Abstractions;
+using Votr.Surveys.Data.CosmosDb.Entities;
 using Votr.Surveys.Data.CosmosDb.Mappings;
+using Votr.Surveys.DataTransferObjects.Details;
 using Votr.Surveys.DomainModels;
 
 namespace Votr.Surveys.Data.CosmosDb;
 
-public class SurveysRepository (  CosmosClient cosmos,
+public class SurveysRepository (CosmosClient cosmos,
     IOptions<AzureServiceConfiguration> options,
-ILogger<SurveysRepository> logger
+    ILogger<SurveysRepository> logger
     ) : CosmosDbRepositoryBase(cosmos, options, logger), ISurveysRepository
 {
-    public Task<List<Survey>> List(CancellationToken cancellationToken)
+    public async Task<List<SurveyDetailsResponse>> List(CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var container  = GetContainer();
+        var queryable = container.GetItemLinqQueryable<SurveyEntity>()
+            .Where(ent => ent.EntityType == nameof(SurveyEntity))
+            .OrderByDescending(ent => ent.ExpiresOn)
+            .ToFeedIterator();
+
+        var list = new List<SurveyDetailsResponse>();
+        while (queryable.HasMoreResults)
+        {
+            var batch = await queryable.ReadNextAsync(cancellationToken);
+            list.AddRange(batch.ToDetailsResponse());
+        }
+
+        return list;
     }
 
-    public Task<Survey> Get(Guid id, CancellationToken cancellationToken)
+    public async Task<Survey> Get(Guid id, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var container = GetContainer();
+        var response = await container.ReadItemAsync<SurveyEntity>(id.ToString(), new PartitionKey(id.ToString()), cancellationToken: cancellationToken);
+        return response.Resource.ToDomainModel();
     }
 
     public async Task<bool> Save(Survey domainModel, CancellationToken cancellationToken)
