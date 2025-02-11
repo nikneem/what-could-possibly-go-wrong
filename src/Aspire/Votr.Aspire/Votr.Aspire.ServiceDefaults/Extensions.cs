@@ -7,6 +7,7 @@ using Microsoft.Extensions.ServiceDiscovery;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
+using Votr.Core.ExtensionMethods;
 
 namespace Microsoft.Extensions.Hosting;
 
@@ -37,6 +38,8 @@ public static class Extensions
         // {
         //     options.AllowedSchemes = ["https"];
         // });
+
+        builder.AddVotrCore();
 
         return builder;
     }

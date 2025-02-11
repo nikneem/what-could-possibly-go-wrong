@@ -16,6 +16,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Aspire\Votr.Aspire\Votr.Aspire.ServiceDefaults\Votr.Aspire.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Votr.Surveys.Data.CosmosDb\Votr.Surveys.Data.CosmosDb.csproj" />
+    <ProjectReference Include="..\Votr.Surveys\Votr.Surveys.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,6 +1,11 @@
+using Votr.Surveys.Data.CosmosDb.ExtensionMethods;
+using Votr.Surveys.ExtensionMethods;
+
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddServiceDefaults();
+builder.AddServiceDefaults()
+    .AddSurveysApi()
+    .WithCosmosDbRepository();
 
 // Add services to the container.
 

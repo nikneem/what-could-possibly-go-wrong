@@ -6,8 +6,21 @@ using Votr.Surveys.Mappings;
 
 namespace Votr.Surveys.Services;
 
-public class SurveysService(ISurveysRepository surveysRepository)
+public class SurveysService(ISurveysRepository surveysRepository) : ISurveysService
 {
+    public async Task<VotrResponse<List<SurveyDetailsResponse>>> List(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var surveys = await surveysRepository.List(cancellationToken);
+            return VotrResponse<List<SurveyDetailsResponse>>.Success(surveys);
+        }
+        catch (Exception ex)
+        {
+            return VotrResponse<List<SurveyDetailsResponse>>.Failure(ex.Message);
+        }
+    }
+
     public async Task<VotrResponse<SurveyDetailsResponse>> Create(
         SurveyCreateRequest requestData,
         CancellationToken cancellationToken)
