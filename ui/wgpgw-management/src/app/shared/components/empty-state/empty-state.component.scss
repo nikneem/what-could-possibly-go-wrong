@@ -1,0 +1,32 @@
+.empty-state-container {
+  display: flex;
+  flex-flow: column;
+  padding: 2rem;
+  align-items: center;
+
+  .empty-state-panel {
+    padding: 2rem;
+    background: rgb(148, 148, 148);
+    background: linear-gradient(#eee 0%, #ddd 100%);
+    box-shadow: 0.2rem 0.2rem 0.4rem rgba(0, 0, 0, 0.5);
+    border: 2px solid #ddd;
+    border-radius: 0.5rem;
+    text-align: center;
+
+    .mat-icon {
+      font-size: 5rem;
+      width: auto;
+      height: auto;
+      margin: 0 auto;
+    }
+    h2 {
+      font-size: 2rem;
+      margin: 0;
+      font-weight: 100;
+    }
+    p {
+      font-size: 1rem;
+      margin: 0.5rem 0;
+    }
+  }
+}

@@ -7,7 +7,7 @@ param location string
 ])
 param appConfigurationSku string
 
-var cosmosDatabaseName = 'spreaview'
+var cosmosDatabaseName = 'votr'
 var surveysContainer = 'surveys'
 //var daprStateStoreName = 'spreaview-state-store'
 var daprPubSubName = 'spreaview-pub-sub'
@@ -178,7 +178,7 @@ resource cosmosDb 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' = {
     location: location
     properties: {
       resource: {
-        id: 'votr'
+        id: cosmosDatabaseName
       }
     }
     resource configurationsContainer 'containers' = {
@@ -260,7 +260,7 @@ resource cosmosDatabase 'Microsoft.AppConfiguration/configurationStores/keyValue
   }
 }
 resource configContainer 'Microsoft.AppConfiguration/configurationStores/keyValues@2023-09-01-preview' = {
-  name: 'AzureServices:CosmosDbConfigurationContainer'
+  name: 'AzureServices:SurveysContainer'
   parent: appConfiguration
   properties: {
     value: surveysContainer

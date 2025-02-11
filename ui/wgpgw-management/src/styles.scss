@@ -1,4 +1,24 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.flex-table-small {
+  flex: 1 1;
+}
+.flex-table-medium {
+  flex: 2 2;
+}
+.flex-table-large {
+  flex: 3 3;
+}
+
+.full-width-field {
+  width: 100%;
+}

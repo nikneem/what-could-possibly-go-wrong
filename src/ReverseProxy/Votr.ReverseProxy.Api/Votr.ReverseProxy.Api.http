@@ -1,0 +1,6 @@
+@Votr.ReverseProxy.Api_HostAddress = http://localhost:5115
+
+GET {{Votr.ReverseProxy.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

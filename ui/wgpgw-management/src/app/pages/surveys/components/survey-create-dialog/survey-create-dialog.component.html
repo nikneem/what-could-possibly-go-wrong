@@ -1,0 +1,30 @@
+<h2 mat-dialog-title>New survey</h2>
+<mat-dialog-content>
+  <form [formGroup]="form">
+    <mat-form-field class="full-width-field">
+      <mat-label>Survey name</mat-label>
+      <input matInput formControlName="name" />
+    </mat-form-field>
+    <mat-form-field class="full-width-field">
+      <mat-label>Expiry date</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="expiresOn" />
+      <mat-datepicker-toggle
+        matIconSuffix
+        [for]="picker"
+      ></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-stroked-button mat-dialog-close>
+    <span>Cancel</span>
+  </button>
+  <button
+    mat-flat-button
+    mat-dialog-close
+    [disabled]="form.invalid || form.pristine"
+  >
+    <span>Save</span>
+  </button>
+</mat-dialog-actions>

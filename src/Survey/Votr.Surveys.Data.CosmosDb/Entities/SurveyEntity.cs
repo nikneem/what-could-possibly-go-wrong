@@ -7,5 +7,5 @@ public class SurveyEntity : VotrDataEntity<Guid>
     public required string Name { get; set; }
     public required string Code { get; set; }
     public DateTimeOffset ExpiresOn { get; set; }
-    public List<SurveyQuestionEntity> Questions { get; set; }
+    public required List<SurveyQuestionEntity> Questions { get; set; }
 }

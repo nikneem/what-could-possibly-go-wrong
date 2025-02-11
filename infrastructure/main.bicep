@@ -15,7 +15,7 @@ param version string = '1.0.0'
 ])
 param appConfigurationSku string
 
-var systemName = 'spreavw-landingzone'
+var systemName = 'votr-landingzone'
 
 var defaultResourceName = '${systemName}-${environmentName}-${location}'
 var targetResourceGroupName = 'rg-${defaultResourceName}'
