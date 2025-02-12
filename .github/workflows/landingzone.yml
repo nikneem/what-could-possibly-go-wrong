@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   generate_version:
-    uses: ./.github/workflows/jobs/versionize.yml@main
+    uses: ./.github/workflows/jobs/versionize.yml
 
   infrastructure:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
