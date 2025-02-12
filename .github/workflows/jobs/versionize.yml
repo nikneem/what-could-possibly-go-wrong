@@ -2,13 +2,6 @@ name: Versionize
 
 on:
   workflow_call:
-    inputs:
-      BUILD_ENV:
-        required: true
-        type: string
-    secrets:
-      TESTING:
-        required: true
 
 jobs:
   versionize:
