@@ -1,0 +1,106 @@
+name: Landingzone
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+    paths:
+      - ".github/workflows/landingzone.yml"
+      - "infrastructure/**"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/landingzone.yml"
+      - "infrastructure/**"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  versionize:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    outputs:
+      semver: ${{ steps.gitversion.outputs.SemVer }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v1.1.1
+        with:
+          versionSpec: "5.x"
+      - name: Determine Version
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v1.1.1
+        with:
+          useConfigFile: true
+
+  infrastructure:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Transpile main template
+        working-directory: infrastructure
+        run: az bicep build --file main.bicep
+      - name: Transpile dev parameters
+        working-directory: infrastructure
+        run: az bicep build-params --file dev.parameters.bicepparam
+      - name: Transpile prd parameters
+        working-directory: infrastructure
+        run: az bicep build-params --file prd.parameters.bicepparam
+      - name: Publish template JSON
+        uses: actions/upload-artifact@v4
+        with:
+          name: template
+          path: infrastructure/*.json
+
+  devenvironment:
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    needs: [infrastructure, versionize]
+    name: Deploy to dev
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download template JSON
+        uses: actions/download-artifact@v4
+        with:
+          name: template
+          path: ./infrastructure
+      - name: Az CLI login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.WGPGW_CLIENT_ID }}
+          tenant-id: ${{ secrets.WGPGW_TENANT_ID }}
+          subscription-id: ${{ secrets.WGPGW_SUBSCRIPTION_ID }}
+      - name: Deploy Infrastructure
+        id: arm
+        uses: Azure/cli@v2
+        with:
+          inlineScript: az deployment sub create --name wgpgw-landingzone --location northeurope --template-file ./infrastructure/main.json --parameters ./infrastructure/dev.parameters.json --parameters version=${{needs.versionize.outputs.semver}}
+
+  # prodenvironment:
+  #   if: (github.event_name == 'push' && github.ref == 'refs/heads/main')
+  #   needs: [infrastructure, versionize, devenvironment]
+  #   name: Deploy to Production
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Download template JSON
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: template
+  #         path: ./infrastructure
+  #     - name: Az CLI login
+  #       uses: azure/login@v2
+  #       with:
+  #         client-id: ${{ secrets.WGPGW_CLIENT_ID }}
+  #         tenant-id: ${{ secrets.WGPGW_TENANT_ID }}
+  #         subscription-id: ${{ secrets.WGPGW_SUBSCRIPTION_ID }}
+  #     - name: Deploy Infrastructure
+  #       id: arm
+  #       uses: Azure/cli@v2
+  #       with:
+  #         inlineScript: az deployment sub create --name spreaview-v2-landingzone --location northeurope --template-file ./infrastructure/main.json --parameters ./infrastructure/prd.parameters.json --parameters version=${{needs.versionize.outputs.semver}}
