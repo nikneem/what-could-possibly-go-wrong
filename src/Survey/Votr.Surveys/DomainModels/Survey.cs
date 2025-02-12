@@ -1,6 +1,7 @@
 ﻿using Votr.Core;
 using Votr.Core.DDD;
 using Votr.Core.DDD.Enums;
+using Votr.Surveys.DataTransferObjects.Update;
 
 namespace Votr.Surveys.DomainModels;
 
@@ -75,6 +76,13 @@ public class Survey : DomainModel<Guid>
         SetTrackingState(TrackingState.Modified);
         return question;
     }
+    public Question UpdateQuestion(Guid id, string text)
+    {
+        var question = _questions.First(q => q.Id == id);
+        question.SetText(text);
+        SetTrackingState(TrackingState.Modified);
+        return question;
+    }
     public void RemoveQuestion(Question question)
     {
         _questions.Remove(question);
@@ -95,7 +103,7 @@ public class Survey : DomainModel<Guid>
     public void UpdateAnswerOption(Question question, Guid id, string text)
     {
         var answer = question.GetAnswerOption(id);
-        question.SetText(text);
+        answer.SetText(text);
         SetTrackingState(TrackingState.Modified);
     }
     public void DeleteAnswerOption(Question question, Guid id)
@@ -128,4 +136,30 @@ public class Survey : DomainModel<Guid>
         return new Survey(name, expiryDate);
     }
 
+    public void Update(SurveyUpdateRequest requestPayload)
+    {
+        UpdateName(requestPayload.Name);
+        UpdateExpiry(requestPayload.ExpiresOn);
+        foreach (var payloadQuestion in requestPayload.Questions)
+        {
+
+            var question = payloadQuestion.Id.HasValue ? 
+                UpdateQuestion(payloadQuestion.Id.Value, payloadQuestion.Text) : 
+                AddQuestion(payloadQuestion.Text);
+            
+            foreach (var payloadAnswerOption in payloadQuestion.Answers)
+            {
+                if (payloadAnswerOption.Id.HasValue)
+                {
+                    UpdateAnswerOption(question, payloadAnswerOption.Id.Value, payloadAnswerOption.Text);
+                }
+                else
+                {
+                    AddAnswerOption(question, payloadAnswerOption.Text);
+                }
+            }
+
+
+        }
+    }
 }

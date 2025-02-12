@@ -1,58 +1,66 @@
-<wgpgw-toolbar></wgpgw-toolbar>
-<mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
-<ng-container *ngIf="surveys.length > 0; else noData">
-  <mat-table [dataSource]="surveys" class="mat-elevation-z8">
-    <ng-container matColumnDef="code">
-      <mat-header-cell
-        mat-header-cell
-        *matHeaderCellDef
-        class="flex-table-small"
-      >
-        Code
-      </mat-header-cell>
-      <mat-cell mat-cell *matCellDef="let element" class="flex-table-small">
-        {{ element.code }}
-      </mat-cell>
-    </ng-container>
-    <ng-container matColumnDef="name">
-      <mat-header-cell
-        mat-header-cell
-        *matHeaderCellDef
-        class="flex-table-large"
-      >
-        Name
-      </mat-header-cell>
-      <mat-cell mat-cell *matCellDef="let element" class="flex-table-large">
-        {{ element.name }}
-      </mat-cell>
-    </ng-container>
-    <ng-container matColumnDef="expiresOn">
-      <mat-header-cell
-        mat-header-cell
-        *matHeaderCellDef
-        class="flex-table-medium"
-      >
-        Expires
-      </mat-header-cell>
-      <mat-cell mat-cell *matCellDef="let element" class="flex-table-medium">
-        {{ element.expiresOn }}
-      </mat-cell>
-    </ng-container>
+<wgpgw-toolbar>
+  <button mat-icon-button (click)="createSurvey()">
+    <mat-icon>add</mat-icon>
+  </button>
+</wgpgw-toolbar>
+<div class="page-container">
+  <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
+  <ng-container *ngIf="surveys.length > 0; else noData">
+    <mat-table [dataSource]="surveys" class="mat-elevation-z8">
+      <ng-container matColumnDef="code">
+        <mat-header-cell
+          mat-header-cell
+          *matHeaderCellDef
+          class="flex-table-small"
+        >
+          Code
+        </mat-header-cell>
+        <mat-cell mat-cell *matCellDef="let element" class="flex-table-small">
+          <a [routerLink]="[element.code]">{{ element.code }}</a>
+        </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="name">
+        <mat-header-cell
+          mat-header-cell
+          *matHeaderCellDef
+          class="flex-table-large"
+        >
+          Name
+        </mat-header-cell>
+        <mat-cell mat-cell *matCellDef="let element" class="flex-table-large">
+          {{ element.name }}
+        </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="expiresOn">
+        <mat-header-cell
+          mat-header-cell
+          *matHeaderCellDef
+          class="flex-table-medium"
+        >
+          Expires
+        </mat-header-cell>
+        <mat-cell mat-cell *matCellDef="let element" class="flex-table-medium">
+          {{ formatDate(element.expiresOn) }}
+        </mat-cell>
+      </ng-container>
 
-    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-    <mat-row
-      matRipple
-      *matRowDef="let row; columns: displayedColumns"
-    ></mat-row>
-  </mat-table>
-</ng-container>
-<ng-template #noData>
-  <wgpgw-empty-state>
-    <div class="no-data">
-      <mat-icon>sentiment_very_dissatisfied</mat-icon>
-      <h2>No surveys found</h2>
-      <p>Oops, we tried to... No surveys were found on the server.</p>
-      <button mat-stroked-button (click)="createSurvey()">Create survey</button>
-    </div>
-  </wgpgw-empty-state>
-</ng-template>
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row
+        matRipple
+        *matRowDef="let row; columns: displayedColumns"
+      ></mat-row>
+    </mat-table>
+  </ng-container>
+  <ng-template #noData>
+    <wgpgw-empty-state *ngIf="!isLoading">
+      <div class="no-data">
+        <mat-icon>sentiment_very_dissatisfied</mat-icon>
+        <h2>No surveys found</h2>
+        <p>Oops, we tried to... No surveys were found on the server.</p>
+        <button mat-stroked-button (click)="createSurvey()">
+          Create survey
+        </button>
+      </div>
+    </wgpgw-empty-state>
+  </ng-template>
+</div>

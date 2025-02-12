@@ -38,4 +38,13 @@ internal    void MoveUp()
         var order = displayOrder ?? 99;
         return new AnswerOption(text, order);
     }
+
+    public void SetText(string value)
+    {
+        if (!Equals(Text, value))
+        {
+            Text = value;
+            SetTrackingState(TrackingState.Modified);
+        }
+    }
 }

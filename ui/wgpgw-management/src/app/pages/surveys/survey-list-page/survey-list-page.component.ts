@@ -5,6 +5,11 @@ import { catchError, map, of, Subscription } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { SurveyCreateDialogComponent } from '../components/survey-create-dialog/survey-create-dialog.component';
 
+import * as _moment from 'moment';
+import { default as _rollupMoment } from 'moment';
+import { Router } from '@angular/router';
+const moment = _rollupMoment || _moment;
+
 @Component({
   selector: 'wgpgw-survey-list-page',
   standalone: false,
@@ -18,7 +23,8 @@ export class SurveyListPageComponent implements OnInit, OnDestroy {
   private surveysSubscription?: Subscription;
   constructor(
     private surveysService: SurveysService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private router: Router
   ) {}
 
   createSurvey(): void {
@@ -26,11 +32,16 @@ export class SurveyListPageComponent implements OnInit, OnDestroy {
       width: '600px',
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().subscribe((result: ISurvey | null | undefined) => {
       if (result) {
-        this.loadSurveys();
+        this.surveys = [result, ...this.surveys];
+        this.router.navigate(['/surveys', result.code]);
       }
     });
+  }
+
+  formatDate(date: Date): string {
+    return moment(date).fromNow();
   }
 
   private loadSurveys(): void {

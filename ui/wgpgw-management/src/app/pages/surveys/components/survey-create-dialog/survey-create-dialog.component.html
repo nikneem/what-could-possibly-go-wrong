@@ -22,8 +22,8 @@
   </button>
   <button
     mat-flat-button
-    mat-dialog-close
     [disabled]="form.invalid || form.pristine"
+    (click)="save()"
   >
     <span>Save</span>
   </button>

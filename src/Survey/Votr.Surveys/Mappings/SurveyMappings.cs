@@ -9,14 +9,18 @@ public static class SurveyMappings
     public static Survey FromCreateModel(this SurveyCreateRequest requestData)
     {
         var survey = Survey.Create(requestData.Name, requestData.ExpiresOn);
-        foreach (var question in requestData.Questions)
+        if (requestData.Questions != null)
         {
-            var q = survey.AddQuestion(question.Text);
-            foreach (var answerOption in question.AnswerOptions)
+            foreach (var question in requestData.Questions)
             {
-                survey.AddAnswerOption(q, answerOption.Text);
+                var q = survey.AddQuestion(question.Text);
+                foreach (var answerOption in question.AnswerOptions)
+                {
+                    survey.AddAnswerOption(q, answerOption.Text);
+                }
             }
         }
+
         return survey;
     }
 

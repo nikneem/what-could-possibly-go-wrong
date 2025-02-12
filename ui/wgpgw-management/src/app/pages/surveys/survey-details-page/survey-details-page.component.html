@@ -1,0 +1,95 @@
+<wgpgw-toolbar>
+  <div class="buttons-bar">
+    <button mat-stroked-button (click)="back()">
+      <span>Back</span>
+    </button>
+    <button
+      mat-flat-button
+      (click)="save()"
+      [disabled]="form.invalid || form.pristine"
+    >
+      <span>Save</span>
+    </button>
+  </div>
+</wgpgw-toolbar>
+<div class="page-container">
+  <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Survey details</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="form">
+        <mat-form-field class="full-width-field">
+          <mat-label>Survey name</mat-label>
+          <input matInput formControlName="name" />
+        </mat-form-field>
+        <mat-form-field class="full-width-field">
+          <mat-label>Expiry date</mat-label>
+          <input
+            matInput
+            [matDatepicker]="picker"
+            formControlName="expiresOn"
+          />
+          <mat-datepicker-toggle
+            matSuffix
+            [for]="picker"
+          ></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+        <ng-container formArrayName="questions">
+          <ng-container
+            *ngFor="let question of questions.controls; let i = index"
+          >
+            <mat-divider></mat-divider>
+            <div class="questions-container">
+              <div class="question-row" [formGroup]="question">
+                <mat-form-field class="full-width-field">
+                  <mat-label>Question</mat-label>
+                  <input matInput formControlName="text" />
+                  <mat-icon matSuffix (click)="removeQuestion(i)"
+                    >delete</mat-icon
+                  >
+                </mat-form-field>
+                <input type="hidden" formControlName="id" />
+                <input type="hidden" formControlName="order" />
+              </div>
+              <div class="answers-row">
+                <ng-container
+                  *ngFor="
+                    let answer of answers(i).controls;
+                    let answerIndex = index
+                  "
+                >
+                  <div class="answer" [formGroup]="answer">
+                    <mat-form-field class="full-width-field">
+                      <mat-label>Answer</mat-label>
+                      <input matInput formControlName="text" />
+                      <mat-icon matSuffix (click)="removeQuestion(i)"
+                        >delete</mat-icon
+                      >
+                    </mat-form-field>
+                    <input type="hidden" formControlName="id" />
+                    <input type="hidden" formControlName="order" />
+                  </div>
+                </ng-container>
+                <div class="empty-answer">
+                  <button mat-stroked-button (click)="addAnswer(i)">
+                    <mat-icon>add</mat-icon>
+                    <span>Add answer</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+          <div class="empty-question">
+            <button mat-stroked-button (click)="addQuestion()">
+              <mat-icon>add</mat-icon>
+              <span>Add question</span>
+            </button>
+          </div>
+        </ng-container>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

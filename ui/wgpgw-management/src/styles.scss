@@ -9,6 +9,10 @@ body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
+.page-container {
+  padding: 1rem;
+}
+
 .flex-table-small {
   flex: 1 1;
 }
@@ -21,4 +25,10 @@ body {
 
 .full-width-field {
   width: 100%;
+}
+
+.buttons-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.5rem;
 }

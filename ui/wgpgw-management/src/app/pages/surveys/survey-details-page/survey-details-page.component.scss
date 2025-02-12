@@ -1,0 +1,14 @@
+.questions-container {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 1rem;
+  .question-row {
+    flex: 1 1 50%;
+  }
+  .answers-row {
+    flex: 1 1 50%;
+  }
+}
+.mat-divider {
+  margin: 1rem;
+}

@@ -49,6 +49,19 @@ public class SurveysRepository (CosmosClient cosmos,
         return response.Resource.ToDomainModel();
     }
 
+    public async Task<Survey> Get(string code, CancellationToken cancellationToken)
+    {
+        var container = GetContainer();
+        var queryable = container.GetItemLinqQueryable<SurveyEntity>()
+            .Where(ent => ent.EntityType == nameof(SurveyEntity))
+            .Where(ent => ent.Code == code)
+            .ToFeedIterator();
+
+        var entity = await queryable.ReadNextAsync(cancellationToken);
+            return entity.First().ToDomainModel();
+    }
+
+
     public async Task<bool> Save(Survey domainModel, CancellationToken cancellationToken)
     {
         if (!domainModel.IsValid)
@@ -56,7 +69,7 @@ public class SurveysRepository (CosmosClient cosmos,
             throw new InvalidOperationException("Survey is not in a valid state");
         }
 
-        if (domainModel.TrackingState == TrackingState.Modified && 
+        if (domainModel.TrackingState == TrackingState.Modified || 
             domainModel.TrackingState == TrackingState.New)
         {
             // Something happened to the domain model. Delete is not implemented
@@ -71,7 +84,7 @@ public class SurveysRepository (CosmosClient cosmos,
 
             if (domainModel.TrackingState == TrackingState.Modified)
             {
-                var itemResponse = await container.UpsertItemAsync(entity, new PartitionKey(SurveysPartitionId), cancellationToken: cancellationToken);
+                var itemResponse = await container.UpsertItemAsync(entity, new PartitionKey(entity.Id.ToString()), cancellationToken: cancellationToken);
                 return itemResponse.StatusCode == HttpStatusCode.OK;
             }
             return false;

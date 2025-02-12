@@ -7,7 +7,7 @@ export interface ISurvey {
 }
 
 export interface IQuestion {
-  id: number;
+  id: string;
   text: string;
   order: number;
   answerOptions: IOption[];
@@ -15,6 +15,30 @@ export interface IQuestion {
 
 export interface IOption {
   id: string;
+  text: string;
+  order: number;
+}
+
+export interface ISurveyCreateRequest {
+  name: string;
+  expiresOn: Date;
+}
+
+export interface ISurveyUpdateRequest {
+  name: string;
+  expiresOn: Date;
+  questions: ISurveyUpdateQuestion[];
+}
+
+export interface ISurveyUpdateQuestion {
+  id?: string;
+  text: string;
+  order: number;
+  answers: ISurveyUpdateAnswer[];
+}
+
+export interface ISurveyUpdateAnswer {
+  id?: string;
   text: string;
   order: number;
 }

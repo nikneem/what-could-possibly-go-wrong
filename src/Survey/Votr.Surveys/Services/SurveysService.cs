@@ -2,6 +2,7 @@
 using Votr.Surveys.Abstractions;
 using Votr.Surveys.DataTransferObjects.Create;
 using Votr.Surveys.DataTransferObjects.Details;
+using Votr.Surveys.DataTransferObjects.Update;
 using Votr.Surveys.Mappings;
 
 namespace Votr.Surveys.Services;
@@ -21,6 +22,19 @@ public class SurveysService(ISurveysRepository surveysRepository) : ISurveysServ
         }
     }
 
+    public async Task<VotrResponse<SurveyDetailsResponse>> Get(string code, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var survey = await surveysRepository.Get(code,cancellationToken);
+            return VotrResponse<SurveyDetailsResponse>.Success(survey.ToDetailsResponse());
+        }
+        catch (Exception ex)
+        {
+            return VotrResponse<SurveyDetailsResponse>.Failure(ex.Message);
+        }
+    }
+
     public async Task<VotrResponse<SurveyDetailsResponse>> Create(
         SurveyCreateRequest requestData,
         CancellationToken cancellationToken)
@@ -32,4 +46,35 @@ public class SurveysService(ISurveysRepository surveysRepository) : ISurveysServ
         }
         return VotrResponse<SurveyDetailsResponse>.Failure("Failed to save survey");
     }
+
+    public async Task<VotrResponse<SurveyDetailsResponse>> Update(string code, SurveyUpdateRequest requestPayload, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var survey = await surveysRepository.Get(code, cancellationToken);
+            survey.Update(requestPayload);
+            if (await surveysRepository.Save(survey, cancellationToken))
+            {
+                return VotrResponse<SurveyDetailsResponse>.Success(survey.ToDetailsResponse());
+            }
+            return VotrResponse<SurveyDetailsResponse>.Failure("Failed to save survey");
+        }
+        catch (Exception ex)
+        {
+            return VotrResponse<SurveyDetailsResponse>.Failure(ex.Message);
+        }
+    }
+
+    //public async Task<VotrResponse<SurveyDetailsResponse>> Update(
+    //    SurveyUpdateRequest requestData,
+    //    CancellationToken cancellationToken)
+    //{
+    //    var survey = requestData.FromCreateModel();
+    //    if (await surveysRepository.Save(survey, cancellationToken))
+    //    {
+    //        return VotrResponse<SurveyDetailsResponse>.Success(survey.ToDetailsResponse());
+    //    }
+    //    return VotrResponse<SurveyDetailsResponse>.Failure("Failed to save survey");
+    //}
+
 }
