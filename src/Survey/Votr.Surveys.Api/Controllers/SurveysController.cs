@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.RegularExpressions;
+using Votr.Core;
 using Votr.Surveys.Abstractions;
 using Votr.Surveys.DataTransferObjects.Create;
 using Votr.Surveys.DataTransferObjects.Update;
@@ -45,7 +47,27 @@ public class SurveysController(ISurveysService service) : ControllerBase
     [HttpGet("{code}/connect")]
     public async Task<IActionResult> ConnectRealtime(string code, CancellationToken cancellationToken)
     {
-        var response = await service.Get(code, cancellationToken);
+        // Find the voter ID
+        var voterId = GetVoterId() ?? Guid.NewGuid();
+        //if (!voterId.HasValue)
+        //{
+        //    return BadRequest();
+        //}
+
+        var response = await service.CreateWebPubSubConnectionString(code, voterId, cancellationToken);
         return Ok(response);
+    }
+
+    private Guid? GetVoterId()
+    {
+        if (HttpContext.Request.Headers.TryGetValue(HttpHeaders.VoterId, out var reviewerId))
+        {
+            if (Regex.IsMatch(reviewerId.ToString(), RegularExpression.Guid))
+            {
+                return Guid.Parse(reviewerId.ToString());
+            }
+        }
+
+        return null;
     }
 }

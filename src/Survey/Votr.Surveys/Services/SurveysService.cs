@@ -4,6 +4,7 @@ using Votr.Core.Configuration;
 using Votr.Core.DataTransferObjects;
 using Votr.Core.Identity;
 using Votr.Surveys.Abstractions;
+using Votr.Surveys.DataTransferObjects;
 using Votr.Surveys.DataTransferObjects.Create;
 using Votr.Surveys.DataTransferObjects.Details;
 using Votr.Surveys.DataTransferObjects.Update;
@@ -69,14 +70,14 @@ public class SurveysService(ISurveysRepository surveysRepository, IOptions<Azure
         }
     }
 
-    public async Task<Uri> CreateWebPubsubConnectionString(string code, Guid userId, CancellationToken cancellationToken)
+    public async Task<WebPubsubConnectionResponse> CreateWebPubSubConnectionString(string code, Guid voterId, CancellationToken cancellationToken)
     {
         var configurationOptions = options.Value;
         var webPubSubEndpoint = new Uri(configurationOptions.WebPubSub);
 
         var pubSubClient = new WebPubSubServiceClient(webPubSubEndpoint, options.Value.WebPubSubHub, CloudIdentity.GetCloudIdentity());
         var clientAccess = await pubSubClient.GetClientAccessUriAsync(
-            userId: userId.ToString(),
+            userId: voterId.ToString(),
             roles:
             [
                 $"webpubsub.sendToGroup.{code}",
@@ -84,7 +85,7 @@ public class SurveysService(ISurveysRepository surveysRepository, IOptions<Azure
             ],
             cancellationToken:cancellationToken);
 
-        return clientAccess;
+        return new WebPubsubConnectionResponse(clientAccess.ToString());
     }
 
     //public async Task<VotrResponse<SurveyDetailsResponse>> Update(

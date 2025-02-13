@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, map, catchError, of } from 'rxjs';
 import { ISurvey, IQuestion } from '../../../models/survey.models';
 import { SurveysService } from '../../../services/surveys.service';
+import { RealtimeService } from '../../../services/realtime.service';
 
 @Component({
   selector: 'wcpgw-graph-landing-page',
@@ -24,6 +25,7 @@ export class GraphLandingPageComponent implements OnInit, OnDestroy {
   constructor(
     private activatedRoute: ActivatedRoute,
     private surveysService: SurveysService,
+    private realtimeService: RealtimeService,
     private router: Router
   ) {}
 
@@ -46,6 +48,7 @@ export class GraphLandingPageComponent implements OnInit, OnDestroy {
           if (survey) {
             this.survey = survey;
             this.findActiveQuestion();
+            this.connectRealtimeService();
           } else {
             this.pageError = 'Survey not found';
           }
@@ -56,6 +59,14 @@ export class GraphLandingPageComponent implements OnInit, OnDestroy {
     if (this.survey) {
       this.activeQuestion = this.survey.questions.find(
         (question) => question.isActive
+      );
+    }
+  }
+  private connectRealtimeService() {
+    if (this.survey) {
+      this.realtimeService.connect(
+        this.survey.code,
+        '00000000-0000-0000-0000-000000000001'
       );
     }
   }

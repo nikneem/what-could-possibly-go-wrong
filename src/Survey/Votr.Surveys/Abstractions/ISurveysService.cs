@@ -1,4 +1,5 @@
 ﻿using Votr.Core.DataTransferObjects;
+using Votr.Surveys.DataTransferObjects;
 using Votr.Surveys.DataTransferObjects.Create;
 using Votr.Surveys.DataTransferObjects.Details;
 using Votr.Surveys.DataTransferObjects.Update;
@@ -16,4 +17,6 @@ public interface ISurveysService
         CancellationToken cancellationToken);
 
     Task<VotrResponse<SurveyDetailsResponse>> Update(string code, SurveyUpdateRequest requestPayload, CancellationToken cancellationToken);
+
+    Task<WebPubsubConnectionResponse> CreateWebPubSubConnectionString(string code, Guid voterId, CancellationToken cancellationToken);
 }

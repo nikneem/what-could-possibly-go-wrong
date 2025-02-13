@@ -3,3 +3,7 @@ export interface IResponseModel<TItem> {
   errorMessage?: string;
   data: TItem;
 }
+
+export interface IRealtimeConnectionResponse {
+  webPubsubEndpointUrl: string;
+}
