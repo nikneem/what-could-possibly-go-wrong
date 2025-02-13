@@ -69,6 +69,9 @@ public static class HostApplicationBuilderExtensions
         var azureServicesSection = builder.Configuration.GetSection(AzureServiceConfiguration.DefaultSectionName);
         builder.Services.AddOptions<AzureServiceConfiguration>().Bind(azureServicesSection).ValidateOnStart();
 
+        var options = builder.Services.GetRequiredService<IOptions<AzureServiceConfiguration>>();
+
+
         builder.Services.AddVotrCoreServices();
         builder.Services.AddCosmosDb();
         return builder;
