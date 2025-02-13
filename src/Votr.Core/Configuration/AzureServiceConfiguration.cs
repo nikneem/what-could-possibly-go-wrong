@@ -9,4 +9,7 @@ public class AzureServiceConfiguration
     public string CosmosDbDatabase { get; set; } = null!;
 
     public string SurveysContainer { get; set; } = null!;
+    public string WebPubSub { get; set; } = null!;
+
+    
 }

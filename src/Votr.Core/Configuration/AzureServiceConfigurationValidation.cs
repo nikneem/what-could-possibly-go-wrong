@@ -19,6 +19,12 @@ public class AzureServiceConfigurationValidation : IValidateOptions<AzureService
         {
             errorList.Add($"Reviews service misconfiguration! Missing configuration value for '{AzureServiceConfiguration.DefaultSectionName}.{nameof(AzureServiceConfiguration.SurveysContainer)}'.");
         }
+        if (string.IsNullOrWhiteSpace(options.WebPubSub))
+        {
+            errorList.Add($"Reviews service misconfiguration! Missing configuration value for '{AzureServiceConfiguration.DefaultSectionName}.{nameof(AzureServiceConfiguration.WebPubSub)}'.");
+        }
+
+        
 
         if (errorList.Any())
         {
