@@ -1,0 +1,17 @@
+.page-error {
+  width: 100%;
+  padding: 1rem;
+  .error-content {
+    background-color: var(--error-background-color);
+    border-color: var(--error-border-color);
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 0.5rem;
+    padding: 0.6rem 1rem;
+    width: 100%;
+    h2,
+    p {
+      margin: 0;
+    }
+  }
+}

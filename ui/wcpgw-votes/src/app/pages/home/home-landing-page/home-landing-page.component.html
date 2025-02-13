@@ -1,0 +1,44 @@
+<wcpgw-toolbar></wcpgw-toolbar>
+<div class="page-container jumbotron">
+  <div class="page-content">
+    <div class="content-container">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>What could possibly go wrong?</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>
+            We are so glad you can join us today. Please enter the extreme
+            secret survey code to join the show.
+          </p>
+          <form [formGroup]="form" novalidate>
+            <mat-form-field class="field-full-width">
+              <input
+                matInput
+                formControlName="code"
+                placeholder="Super secret code"
+                required
+              />
+            </mat-form-field>
+          </form>
+        </mat-card-content>
+        <mat-card-actions align="end">
+          <mat-progress-bar
+            *ngIf="isLoading"
+            mode="indeterminate"
+          ></mat-progress-bar>
+          <span *ngIf="errorMessage" class="error">{{ errorMessage }}</span>
+          <button
+            mat-flat-button
+            color="primary"
+            (click)="joinSurvey()"
+            [disabled]="form.invalid"
+          >
+            Join
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </div>
+</div>
+<wcpgw-footer></wcpgw-footer>

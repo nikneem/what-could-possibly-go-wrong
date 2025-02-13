@@ -1,0 +1,35 @@
+.page-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  .content-container {
+    max-width: 80%;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  .page-content {
+    .content-container {
+      margin-right: 40%;
+      margin-bottom: 10%;
+      max-width: 60%;
+    }
+  }
+}
+@media screen and (min-width: 1024px) {
+  .page-content {
+    .content-container {
+      max-width: 50%;
+    }
+  }
+}
+@media screen and (min-width: 1200px) {
+  .page-content {
+    .content-container {
+      margin-right: 50%;
+      max-width: 420px;
+    }
+  }
+}

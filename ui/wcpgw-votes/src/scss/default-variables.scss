@@ -1,0 +1,21 @@
+:root {
+  --background-color: #333;
+  --background-color-lighter: #222;
+  --text-color: #ccc;
+  --error-color: #f22;
+  --error-background-color: #300;
+  --error-border-color: #800;
+  --primary: #b36200;
+  --primary-color: #b36200;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --background-color: #bbb;
+    --background-color-lighter: #ddd;
+    --text-color: #444;
+    --error-color: #a00;
+    --error-background-color: #fcc;
+    --error-border-color: #f99;
+  }
+}

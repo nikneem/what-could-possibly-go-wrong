@@ -1,0 +1,73 @@
+<wcpgw-toolbar></wcpgw-toolbar>
+<div class="page-container jumbotron">
+  <div class="page-content">
+    <wcpgw-page-error
+      *ngIf="pageError"
+      [text]="pageError"
+      title="Oops!"
+    ></wcpgw-page-error>
+
+    <div class="content-container" *ngIf="survey">
+      <mat-card *ngIf="activeQuestion && form; else emptystate">
+        <mat-card-header>
+          <mat-card-title>{{ survey.name }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <ng-container *ngIf="activeQuestion && form; else emptystate">
+            <h2>{{ activeQuestion.text }}</h2>
+            <form [formGroup]="form" novalidate>
+              <mat-radio-group
+                aria-label="Select an option"
+                class="radio-button-group"
+                formControlName="answerId"
+              >
+                <mat-radio-button
+                  [value]="option.id"
+                  *ngFor="let option of activeQuestion.answerOptions"
+                  >{{ option.text }}</mat-radio-button
+                >
+              </mat-radio-group>
+            </form>
+          </ng-container>
+        </mat-card-content>
+        <mat-card-actions align="end" *ngIf="activeQuestion">
+          <mat-progress-bar
+            *ngIf="isLoading"
+            mode="indeterminate"
+          ></mat-progress-bar>
+          <span *ngIf="errorMessage" class="error">{{ errorMessage }}</span>
+          <div class="buttons">
+            <button
+              mat-stroked-button
+              color="primary"
+              (click)="form?.reset()"
+              [disabled]="!form"
+            >
+              Clear
+            </button>
+            <button
+              mat-flat-button
+              color="primary"
+              (click)="submitAnswer()"
+              [disabled]="!form || form.invalid || form.pristine"
+            >
+              Submit
+            </button>
+          </div>
+        </mat-card-actions>
+      </mat-card>
+      <ng-template #emptystate>
+        <div class="empty-state">
+          <mat-card>
+            <mat-card-content>
+              <p class="center">
+                Hold on, no question is active yet. Please wait for the host to
+                start the show.
+              </p>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>

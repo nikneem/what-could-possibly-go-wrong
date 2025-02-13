@@ -7,6 +7,8 @@ param location string
 ])
 param appConfigurationSku string
 
+param webPubSubSku string
+
 var cosmosDatabaseName = 'votr'
 var surveysContainer = 'surveys'
 //var daprStateStoreName = 'spreaview-state-store'
@@ -212,6 +214,17 @@ resource cosmosDb 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' = {
   }
 }
 
+resource webPubSub 'Microsoft.SignalRService/webPubSub@2024-10-01-preview' = {
+  name: '${defaultResourceName}-wps'
+  location: location
+  sku: {
+    name: webPubSubSku
+  }
+  properties: {
+    publicNetworkAccess: 'Enabled'
+  }
+}
+
 resource serviceBus 'Microsoft.ServiceBus/namespaces@2023-01-01-preview' = {
   name: '${defaultResourceName}-servicebus'
   location: location
@@ -264,5 +277,12 @@ resource configContainer 'Microsoft.AppConfiguration/configurationStores/keyValu
   parent: appConfiguration
   properties: {
     value: surveysContainer
+  }
+}
+resource configPubSubEndpoint 'Microsoft.AppConfiguration/configurationStores/keyValues@2023-09-01-preview' = {
+  name: 'AzureServices:WebPubSub'
+  parent: appConfiguration
+  properties: {
+    value: webPubSub.properties.hostName
   }
 }

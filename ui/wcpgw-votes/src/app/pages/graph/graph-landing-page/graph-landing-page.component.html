@@ -1,0 +1,46 @@
+<wcpgw-toolbar></wcpgw-toolbar>
+<div class="page-container jumbotron">
+  <div class="page-content">
+    <wcpgw-page-error
+      *ngIf="pageError"
+      [text]="pageError"
+      title="Oops!"
+    ></wcpgw-page-error>
+    <div class="content-container" *ngIf="survey">
+      <ng-container *ngIf="activeQuestion; else emptystate">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title class="large-text">{{
+              activeQuestion.text
+            }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="vote-progress-bars">
+              <div
+                class="vote-progress-bar"
+                *ngFor="let option of activeQuestion.answerOptions"
+              >
+                <p>{{ option.text }}</p>
+                <wcpgw-graph-progress-bar
+                  [progress]="12"
+                ></wcpgw-graph-progress-bar>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </ng-container>
+      <ng-template #emptystate>
+        <div class="empty-state">
+          <mat-card>
+            <mat-card-content>
+              <p class="center">
+                Hold on, no question is active yet. Please wait for the host to
+                start the show.
+              </p>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>

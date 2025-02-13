@@ -1,0 +1,39 @@
+@use "@angular/material" as mat;
+
+@include mat.core();
+
+$dark-theme: mat.define-theme(
+  (
+    color: (
+      theme-type: dark,
+      primary: mat.$orange-palette,
+      tertiary: mat.$yellow-palette,
+    ),
+    typography: (
+      brand-family: Nunito,
+      regular-weight: 400,
+      bold-weight: 600,
+    ),
+  )
+);
+
+// Define a light theme
+$light-theme: mat.define-theme(
+  (
+    color: (
+      theme-type: light,
+      primary: mat.$orange-palette,
+      tertiary: mat.$yellow-palette,
+    ),
+    typography: (
+      brand-family: Nunito,
+      regular-weight: 400,
+      bold-weight: 600,
+    ),
+  )
+);
+
+:root {
+  --background-color: #333;
+  --text-color: #eee;
+}

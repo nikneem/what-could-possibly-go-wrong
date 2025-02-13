@@ -1,0 +1,63 @@
+/* You can add global styles to this file, and also import other style files */
+
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Nunito, "Helvetica Neue", sans-serif;
+}
+
+.page-container {
+  padding: 1rem;
+  height: calc(100vh - 64px);
+}
+.jumbotron {
+  background-image: url(/images/landing-page-background.webp);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+a {
+  text-decoration: none;
+  color: var(--mat-sys-primary);
+}
+a:hover {
+  text-decoration: underline;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 100;
+}
+
+.buttons,
+.actions,
+.button-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+}
+
+.field-full-width {
+  width: 100%;
+}
+.error {
+  color: var(--error-color);
+  padding: 0 1rem;
+}
+.page-error {
+  color: var(--error-color);
+  padding: 0 1rem;
+}
+.center {
+  text-align: center;
+}
+
+* {
+  box-sizing: border-box;
+}

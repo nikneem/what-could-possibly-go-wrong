@@ -1,0 +1,20 @@
+@use "@angular/material" as mat;
+@use "angular-theme.scss" as themes;
+@use "default-variables.scss";
+@use "default-styles.scss";
+@include mat.elevation-classes();
+@include mat.app-background();
+
+:root {
+  @include mat.all-component-themes(themes.$dark-theme);
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    @include mat.all-component-colors(themes.$light-theme);
+  }
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}

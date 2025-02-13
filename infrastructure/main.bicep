@@ -15,6 +15,8 @@ param version string = '1.0.0'
 ])
 param appConfigurationSku string
 
+param webPubSubSku string
+
 var systemName = 'votr-landingzone'
 
 var defaultResourceName = '${systemName}-${environmentName}-${location}'
@@ -37,5 +39,6 @@ module resourceModule 'resources.bicep' = {
     location: location
     defaultResourceName: defaultResourceName
     appConfigurationSku: appConfigurationSku
+    webPubSubSku: webPubSubSku
   }
 }

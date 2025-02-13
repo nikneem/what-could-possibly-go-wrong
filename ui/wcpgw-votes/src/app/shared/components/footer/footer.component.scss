@@ -1,0 +1,12 @@
+.footer-container {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  .footer-content {
+    padding: 1rem;
+    p {
+      font-size: 0.8rem;
+      text-align: center;
+    }
+  }
+}
