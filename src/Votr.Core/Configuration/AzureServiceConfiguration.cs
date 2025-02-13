@@ -10,6 +10,8 @@ public class AzureServiceConfiguration
 
     public string SurveysContainer { get; set; } = null!;
     public string WebPubSub { get; set; } = null!;
-
+    public string WebPubSubHub { get; set; } = null!;
     
+
+
 }

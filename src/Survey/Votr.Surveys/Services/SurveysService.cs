@@ -1,4 +1,8 @@
-﻿using Votr.Core.DataTransferObjects;
+﻿using Azure.Messaging.WebPubSub;
+using Microsoft.Extensions.Options;
+using Votr.Core.Configuration;
+using Votr.Core.DataTransferObjects;
+using Votr.Core.Identity;
 using Votr.Surveys.Abstractions;
 using Votr.Surveys.DataTransferObjects.Create;
 using Votr.Surveys.DataTransferObjects.Details;
@@ -7,7 +11,7 @@ using Votr.Surveys.Mappings;
 
 namespace Votr.Surveys.Services;
 
-public class SurveysService(ISurveysRepository surveysRepository) : ISurveysService
+public class SurveysService(ISurveysRepository surveysRepository, IOptions<AzureServiceConfiguration> options) : ISurveysService
 {
     public async Task<VotrResponse<List<SurveyDetailsResponse>>> List(CancellationToken cancellationToken)
     {
@@ -63,6 +67,24 @@ public class SurveysService(ISurveysRepository surveysRepository) : ISurveysServ
         {
             return VotrResponse<SurveyDetailsResponse>.Failure(ex.Message);
         }
+    }
+
+    public async Task<Uri> CreateWebPubsubConnectionString(string code, Guid userId, CancellationToken cancellationToken)
+    {
+        var configurationOptions = options.Value;
+        var webPubSubEndpoint = new Uri(configurationOptions.WebPubSub);
+
+        var pubSubClient = new WebPubSubServiceClient(webPubSubEndpoint, options.Value.WebPubSubHub, CloudIdentity.GetCloudIdentity());
+        var clientAccess = await pubSubClient.GetClientAccessUriAsync(
+            userId: userId.ToString(),
+            roles:
+            [
+                $"webpubsub.sendToGroup.{code}",
+                $"webpubsub.joinLeaveGroup.{code}"
+            ],
+            cancellationToken:cancellationToken);
+
+        return clientAccess;
     }
 
     //public async Task<VotrResponse<SurveyDetailsResponse>> Update(

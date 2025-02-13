@@ -63,14 +63,10 @@ public static class HostApplicationBuilderExtensions
             Console.WriteLine(ex.ToString());
         }
 
-        builder.Services
-            .AddSingleton<IValidateOptions<AzureServiceConfiguration>, AzureServiceConfigurationValidation>();
+        builder.Services.AddSingleton<IValidateOptions<AzureServiceConfiguration>, AzureServiceConfigurationValidation>();
 
         var azureServicesSection = builder.Configuration.GetSection(AzureServiceConfiguration.DefaultSectionName);
         builder.Services.AddOptions<AzureServiceConfiguration>().Bind(azureServicesSection).ValidateOnStart();
-
-        var options = builder.Services.GetRequiredService<IOptions<AzureServiceConfiguration>>();
-
 
         builder.Services.AddVotrCoreServices();
         builder.Services.AddCosmosDb();

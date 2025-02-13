@@ -42,4 +42,10 @@ public class SurveysController(ISurveysService service) : ControllerBase
         return Ok(response);
     }
 
+    [HttpGet("{code}/connect")]
+    public async Task<IActionResult> ConnectRealtime(string code, CancellationToken cancellationToken)
+    {
+        var response = await service.Get(code, cancellationToken);
+        return Ok(response);
+    }
 }

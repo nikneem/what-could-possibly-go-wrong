@@ -291,7 +291,7 @@ resource configPubSubEndpoint 'Microsoft.AppConfiguration/configurationStores/ke
   name: 'AzureServices:WebPubSub'
   parent: appConfiguration
   properties: {
-    value: webPubSub.properties.hostName
+    value: 'https://${webPubSub.properties.hostName}'
   }
 }
 resource configPubSubHub 'Microsoft.AppConfiguration/configurationStores/keyValues@2023-09-01-preview' = {
