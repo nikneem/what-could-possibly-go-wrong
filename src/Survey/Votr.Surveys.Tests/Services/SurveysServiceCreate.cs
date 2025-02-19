@@ -1,4 +1,6 @@
-﻿using Moq;
+﻿using Microsoft.Extensions.Options;
+using Moq;
+using Votr.Core.Configuration;
 using Votr.Surveys.Abstractions;
 using Votr.Surveys.DataTransferObjects.Create;
 using Votr.Surveys.DomainModels;
@@ -15,7 +17,9 @@ namespace Votr.Surveys.Tests.Services
         public SurveysServiceTest()
         {
             _surveysRepositoryMock = new Mock<ISurveysRepository>();
-            _surveysService = new SurveysService(_surveysRepositoryMock.Object);
+            _surveysService = new SurveysService(
+                _surveysRepositoryMock.Object, 
+                It.IsAny<IOptions<AzureServiceConfiguration>>());
         }
 
         [Fact]

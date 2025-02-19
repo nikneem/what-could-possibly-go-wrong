@@ -94,6 +94,17 @@ public class Survey : DomainModel<Guid>
         _questions.Remove(question);
         SetTrackingState(TrackingState.Modified);
     }
+    public Question ActivateQuestion(Guid questionId)
+    {
+        foreach (var q in Questions)
+        {
+            q.Deactivate();
+        }
+        var question = _questions.First(q => q.Id == questionId);
+        question.Activate();
+        SetTrackingState(TrackingState.Modified);
+        return question;
+    }
 
     public void AddAnswerOption(Question question, string text)
     {
@@ -162,4 +173,6 @@ public class Survey : DomainModel<Guid>
 
         }
     }
+
+
 }

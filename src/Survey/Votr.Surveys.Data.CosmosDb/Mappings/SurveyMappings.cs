@@ -14,7 +14,7 @@ public static class SurveyMappings
     public static Question ToDomainModel(this SurveyQuestionEntity entity)
     {
         var answerOptions = entity.AnswerOptions.Select(a => a.ToDomainModel()).ToList();
-        return new Question(entity.Id, entity.Text, entity.Order, answerOptions);
+        return new Question(entity.Id, entity.Text, entity.Order, entity.IsActive,  answerOptions);
     }
     public static AnswerOption ToDomainModel(this AnswerOptionEntity entity)
     {
@@ -38,7 +38,12 @@ public static class SurveyMappings
     public static SurveyQuestionEntity ToEntity(this Question domainModel)
     {
         var answerOptions = domainModel.AnswerOptions.Select(a => a.ToEntity()).ToList();
-        return new SurveyQuestionEntity(domainModel.Id, domainModel.Text, domainModel.Order, answerOptions);
+        return new SurveyQuestionEntity(
+            domainModel.Id, 
+            domainModel.Text, 
+            domainModel.Order, 
+            domainModel.IsActive,
+            answerOptions);
     }
     public static AnswerOptionEntity ToEntity(this AnswerOption domainModel)
     {
@@ -55,7 +60,7 @@ public static class SurveyMappings
     }
     public static SurveyQuestion ToDetailsResponse(this SurveyQuestionEntity question)
     {
-        return new SurveyQuestion(question.Id, question.Text, question.Order, question.AnswerOptions.Select(a => a.ToDetailsResponse()).ToList());
+        return new SurveyQuestion(question.Id, question.Text, question.Order, question.IsActive, question.AnswerOptions.Select(a => a.ToDetailsResponse()).ToList());
     }
     public static SurveyAnswerOption ToDetailsResponse(this AnswerOptionEntity answerOption)
     {

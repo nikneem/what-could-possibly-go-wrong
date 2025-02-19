@@ -30,7 +30,7 @@ public static class SurveyMappings
     }
     public static SurveyQuestion ToDetailsResponse(this Question question)
     {
-        return new SurveyQuestion(question.Id, question.Text, question.Order, question.AnswerOptions.Select(a => a.ToDetailsResponse()).ToList());
+        return new SurveyQuestion(question.Id, question.Text, question.Order, question.IsActive,  question.AnswerOptions.Select(a => a.ToDetailsResponse()).ToList());
     }
 
     public static SurveyAnswerOption ToDetailsResponse(this AnswerOption answerOption)

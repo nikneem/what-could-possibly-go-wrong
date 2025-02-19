@@ -18,5 +18,6 @@ public interface ISurveysService
 
     Task<VotrResponse<SurveyDetailsResponse>> Update(string code, SurveyUpdateRequest requestPayload, CancellationToken cancellationToken);
 
+    Task<VotrResponse<SurveyDetailsResponse>> ActivateQuestion(string code, Guid questionId,  CancellationToken cancellationToken);
     Task<WebPubsubConnectionResponse> CreateWebPubSubConnectionString(string code, Guid voterId, CancellationToken cancellationToken);
 }

@@ -9,6 +9,7 @@ public class Question:DomainModel<Guid>
 
     public int Order { get; private set; }
     public string Text { get; private set; }
+    public bool IsActive { get; private set; }
     public IReadOnlyList<AnswerOption> AnswerOptions => _answerOptions.AsReadOnly();
 
     public bool IsValid => AnswerOptions.Count > 1;
@@ -42,10 +43,11 @@ public class Question:DomainModel<Guid>
     }
 
 
-    public Question(Guid id, string text, int order, List<AnswerOption> answerOptions) : base(id)
+    public Question(Guid id, string text, int order, bool isActive, List<AnswerOption> answerOptions) : base(id)
     {
         Text = text;
         Order = order;
+        IsActive = isActive;
         _answerOptions = answerOptions;
     }
 
@@ -62,4 +64,21 @@ public class Question:DomainModel<Guid>
         return new Question(text, order);
     }
 
+    public void Deactivate()
+    {
+        if (IsActive)
+        {
+            IsActive = false;
+            SetTrackingState(TrackingState.Modified);
+        }
+    }
+
+    public void Activate()
+    {
+        if (!IsActive)
+        {
+            IsActive = true;
+            SetTrackingState(TrackingState.Modified);
+        }
+    }
 }

@@ -1,11 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { IRealtimeConnectionResponse } from '../models/votr.models';
+import { IRealtimeConnectionResponse } from '@shared-state/models/votr.models';
+import { IQuestion } from '@shared-state/survey/survey.models';
+import { Store } from '@ngrx/store';
+import { IAppState } from '@shared-state/app.state';
+import { SurveyActions } from '@shared-state/survey/survey.actions';
 
 export interface IRealtimeEvent<TPayload> {
-  message: string;
-  data: TPayload;
+  messageType: string;
+  payload: TPayload;
 }
 
 @Injectable({
@@ -17,7 +21,7 @@ export class RealtimeService {
   public pubsubClient?: WebSocket;
   private surveyCode?: string;
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private store: Store<IAppState>) {
     this.baseUrl = environment.apiEndpoint;
   }
 
@@ -92,12 +96,15 @@ export class RealtimeService {
   private handleRealtimeMessage(message: any) {
     var eventMessage = JSON.parse(message);
     if (eventMessage.type === 'message') {
-      // var event = eventMessage.data as IRealtimeEvent<any>;
+      const event = eventMessage.data as IRealtimeEvent<any>;
       console.log(event);
-      // if (event.eventName === 'poll-activated') {
-      //   const activatedPoll = event.payload as IPollDto;
-      //   this.store.dispatch(pollActivated({ poll: activatedPoll }));
-      // }
+      if (event.messageType === 'SurveyQuestionActivated') {
+        const activatedPoll = event.payload as IQuestion;
+        this.store.dispatch(
+          SurveyActions.questionActivated({ question: activatedPoll })
+        );
+        //this.store.dispatch(pollActivated({ poll: activatedPoll }));
+      }
       // if (event.eventName === 'poll-votes') {
       //   const incomingVotes = event.payload as Array<IPollVoteDto>;
       //   this.store.dispatch(voteSeriesUpdate({ dto: incomingVotes }));

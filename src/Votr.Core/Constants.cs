@@ -20,3 +20,8 @@ public class RegularExpression
 {
     public const string Guid = @"^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$";
 }
+
+public class RealtimeMessage
+{
+    public const string SurveyQuestionActivated = "SurveyQuestionActivated";
+}

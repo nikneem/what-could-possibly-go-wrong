@@ -26,6 +26,12 @@ public class SurveysController(ISurveysService service) : ControllerBase
         var response = await service.Get(code, cancellationToken);
         return Ok(response);
     }
+    [HttpGet("{code}/questions/{questionId}/activate")]
+    public async Task<IActionResult> ActivateQuestion(string code, Guid questionId, CancellationToken cancellationToken)
+    {
+        var response = await service.ActivateQuestion(code, questionId, cancellationToken);
+        return Ok(response);
+    }
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] SurveyCreateRequest requestPayload,

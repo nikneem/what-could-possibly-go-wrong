@@ -1,10 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { RealtimeService } from '@services/realtime.service';
+import { SurveysService } from '@services/surveys.service';
+import { IQuestion, ISurvey } from '@shared-state/survey/survey.models';
 import { Subscription, map, catchError, of } from 'rxjs';
-import { ISurvey, IQuestion } from '../../../models/survey.models';
-import { SurveysService } from '../../../services/surveys.service';
-import { RealtimeService } from '../../../services/realtime.service';
 
 @Component({
   selector: 'wcpgw-graph-landing-page',
@@ -58,7 +58,7 @@ export class GraphLandingPageComponent implements OnInit, OnDestroy {
   private findActiveQuestion() {
     if (this.survey) {
       this.activeQuestion = this.survey.questions.find(
-        (question) => question.isActive
+        (question: IQuestion) => question.isActive
       );
     }
   }

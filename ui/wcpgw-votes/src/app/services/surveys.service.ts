@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { ISurvey } from '../models/survey.models';
-import { IResponseModel } from '../models/votr.models';
+import { IResponseModel } from '@shared-state/models/votr.models';
+import { ISurvey } from '@shared-state/survey/survey.models';
 
 @Injectable({
   providedIn: 'root',

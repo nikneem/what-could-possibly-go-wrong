@@ -1,9 +1,13 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription, map, catchError, of } from 'rxjs';
-import { IQuestion, ISurvey } from '../../../models/survey.models';
-import { SurveysService } from '../../../services/surveys.service';
+import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { IQuestion, ISurvey } from '@shared-state/survey/survey.models';
+import { Store } from '@ngrx/store';
+import { IAppState } from '@shared-state/app.state';
+import { SurveyActions } from '@shared-state/survey/survey.actions';
+import { RealtimeService } from '@services/realtime.service';
+import { ClientService } from '@services/client.service';
 
 @Component({
   selector: 'wcpgw-votes-landing-page',
@@ -14,78 +18,92 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 export class VotesLandingPageComponent implements OnInit, OnDestroy {
   pageError?: string;
   errorMessage?: string;
+  surveyCode?: string;
+
   isLoading: boolean = false;
   survey?: ISurvey;
   activeQuestion?: IQuestion;
-  private surveysSubscription?: Subscription;
+  private surveysSubscription: Subscription;
 
   form?: FormGroup;
+  private clientId: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private surveysService: SurveysService,
-    private router: Router
-  ) {}
+    private realtimeService: RealtimeService,
+    private clientService: ClientService,
+    private store: Store<IAppState>
+  ) {
+    this.clientId = this.clientService.getClientId();
+    this.surveysSubscription = this.store
+      .select((str) => str.surveys)
+      .subscribe((state) => {
+        this.isLoading = state.isLoading;
+        this.errorMessage = state.errorMessage;
+        this.survey = state.survey;
+
+        if (state.survey) {
+          if (this.surveyCode !== state.survey.code) {
+            this.realtimeService.connect(state.survey.code, this.clientId);
+            this.findActiveQuestion();
+          }
+        }
+        if (
+          state.activeQuestion &&
+          state.activeQuestion.id !== this.activeQuestion?.id
+        ) {
+          this.activateQuestion(state.activeQuestion);
+        }
+
+        this.surveyCode = state.survey?.code;
+        this.activeQuestion = state.activeQuestion;
+      });
+  }
 
   private loadSurvey(code: string) {
-    this.surveysSubscription?.unsubscribe();
-    if (!this.isLoading) {
-      this.pageError = undefined;
-      this.isLoading = true;
-      this.surveysSubscription = this.surveysService
-        .getSurvey(code)
-        .pipe(
-          map((response) => response.data),
-          catchError((error) => {
-            console.error(error);
-            return of(null);
-          })
-        )
-        .subscribe((survey: ISurvey | null | undefined) => {
-          this.isLoading = false;
-          if (survey) {
-            this.survey = survey;
-            this.findActiveQuestion();
-          } else {
-            this.pageError = 'Survey not found';
-          }
-        });
+    if (this.surveyCode !== code) {
+      this.store.dispatch(SurveyActions.surveyLoad({ surveyCode: code }));
     }
   }
 
   private findActiveQuestion() {
     if (this.survey) {
-      this.activeQuestion = this.survey.questions.find(
+      const activeQuestion = this.survey.questions.find(
         (question) => question.isActive
       );
-      if (this.activeQuestion) {
-        this.form = new FormGroup({
-          code: new FormControl(this.survey.code, [
-            Validators.required,
-            Validators.minLength(6),
-          ]),
-          questionId: new FormControl(this.activeQuestion.id, [
-            Validators.required,
-          ]),
-          answerId: new FormControl(null, [Validators.required]),
-        });
+      if (activeQuestion) {
+        this.store.dispatch(
+          SurveyActions.questionActivated({ question: activeQuestion })
+        );
       }
     }
     return undefined;
+  }
+  private activateQuestion(question: IQuestion) {
+    if (this.survey) {
+      this.form = new FormGroup({
+        code: new FormControl(this.survey.code, [
+          Validators.required,
+          Validators.minLength(6),
+        ]),
+        questionId: new FormControl(question.id, [Validators.required]),
+        answerId: new FormControl(null, [Validators.required]),
+      });
+    }
   }
 
   submitAnswer() {}
 
   ngOnInit(): void {
     this.activatedRoute.params.subscribe((params) => {
-      const surveyCode = params['code'];
-      if (surveyCode) {
-        this.loadSurvey(surveyCode);
-      } else {
-        this.pageError = 'Survey not found';
+      const queryStringSurveyCode = params['code'];
+      if (queryStringSurveyCode) {
+        this.loadSurvey(queryStringSurveyCode);
       }
     });
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+    this.surveysSubscription.unsubscribe();
+  }
 }

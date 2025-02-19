@@ -1,9 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { SurveysService } from '../../../services/surveys.service';
 import { catchError, map, of, Subscription } from 'rxjs';
-import { ISurvey } from '../../../models/survey.models';
 import { Router } from '@angular/router';
+import { ISurvey } from '@shared-state/survey/survey.models';
+import { Store } from '@ngrx/store';
+import { IAppState } from '@shared-state/app.state';
+import { SurveyActions } from '@shared-state/survey/survey.actions';
 
 @Component({
   selector: 'wcpgw-home-landing-page',
@@ -11,47 +14,38 @@ import { Router } from '@angular/router';
   templateUrl: './home-landing-page.component.html',
   styleUrl: './home-landing-page.component.scss',
 })
-export class HomeLandingPageComponent {
+export class HomeLandingPageComponent implements OnDestroy {
   form: FormGroup;
   isLoading: boolean = false;
   errorMessage?: string;
 
-  private surveysSubscription?: Subscription;
+  private surveysSubscription: Subscription;
 
-  constructor(private surveysService: SurveysService, private router: Router) {
+  constructor(private router: Router, private store: Store<IAppState>) {
     this.form = new FormGroup({
       code: new FormControl('', [Validators.required, Validators.minLength(6)]),
     });
-  }
 
-  private loadSurvey(code: string) {
-    this.surveysSubscription?.unsubscribe();
-    if (!this.isLoading) {
-      this.errorMessage = undefined;
-      this.isLoading = true;
-      this.surveysSubscription = this.surveysService
-        .getSurvey(code)
-        .pipe(
-          map((response) => response.data),
-          catchError((error) => {
-            console.error(error);
-            return of(null);
-          })
-        )
-        .subscribe((survey: ISurvey | null | undefined) => {
-          this.isLoading = false;
-          if (survey) {
-            this.router.navigate(['/votes', survey.code]);
-          } else {
-            this.errorMessage = 'Survey not found';
-          }
-        });
-    }
+    this.surveysSubscription = this.store
+      .select((str) => str.surveys)
+      .subscribe((state) => {
+        this.isLoading = state.isLoading;
+        this.errorMessage = state.errorMessage;
+        if (state.survey) {
+          this.router.navigate(['/votes', state.survey.code]);
+        }
+      });
   }
 
   joinSurvey() {
     if (this.form.valid) {
-      this.loadSurvey(this.form.value.code);
+      this.store.dispatch(
+        SurveyActions.surveyLoad({ surveyCode: this.form.value.code })
+      );
     }
+  }
+
+  ngOnDestroy() {
+    this.surveysSubscription.unsubscribe();
   }
 }
