@@ -1,10 +1,10 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Dapr.Client;
+using Microsoft.Extensions.Options;
 using Moq;
 using Votr.Core.Configuration;
 using Votr.Surveys.Abstractions;
 using Votr.Surveys.DataTransferObjects.Create;
 using Votr.Surveys.DomainModels;
-using Votr.Surveys.Mappings;
 using Votr.Surveys.Services;
 
 namespace Votr.Surveys.Tests.Services
@@ -18,6 +18,7 @@ namespace Votr.Surveys.Tests.Services
         {
             _surveysRepositoryMock = new Mock<ISurveysRepository>();
             _surveysService = new SurveysService(
+                It.IsAny<DaprClient>(),
                 _surveysRepositoryMock.Object, 
                 It.IsAny<IOptions<AzureServiceConfiguration>>());
         }

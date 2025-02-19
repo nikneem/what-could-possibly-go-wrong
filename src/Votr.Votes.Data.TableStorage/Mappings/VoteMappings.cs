@@ -12,7 +12,7 @@ public static class VoteMappings
         return new VoteEntity
         {
             PartitionKey = vote.QuestionId.ToString(),
-            RowKey = vote.VoterId.ToString(),
+            RowKey = vote.Id.ToString(),
             SurveyId = vote.SurveyId,
             AnswerOption = vote.AnswerOption,
             Timestamp = DateTimeOffset.UtcNow

@@ -1,5 +1,4 @@
-﻿using System.Drawing.Text;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 
 namespace Votr.Core.Encryption;
 

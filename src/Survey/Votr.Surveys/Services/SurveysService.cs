@@ -95,8 +95,8 @@ public class SurveysService(DaprClient daperClient, ISurveysRepository surveysRe
                 var question = survey.ActivateQuestion(questionId);
             if (await surveysRepository.Save(survey, cancellationToken))
             {
-                await BroadcastQuestionActivated(survey, question);
-                await AddQuestionToDistributedCache(survey, question);
+                await BroadcastQuestionActivated(survey, question, cancellationToken);
+                await AddQuestionToDistributedCache(survey, question, cancellationToken);
                 return VotrResponse<SurveyDetailsResponse>.Success(survey.ToDetailsResponse());
             }
             }
@@ -108,7 +108,7 @@ public class SurveysService(DaprClient daperClient, ISurveysRepository surveysRe
         }
     }
 
-    private async Task AddQuestionToDistributedCache(Survey survey, Question question)
+    private async Task AddQuestionToDistributedCache(Survey survey, Question question, CancellationToken cancellationToken)
     {
         var cacheKey = CacheName.QuestionVotes(survey.Id, question.Id);
         var votesState = new QuestionVotesResponse(
@@ -121,7 +121,7 @@ public class SurveysService(DaprClient daperClient, ISurveysRepository surveysRe
             {
                 "ttlInSeconds", "3600" // Cache for one hour
             }
-        });
+        }, cancellationToken: cancellationToken);
     }
 
     public async Task<WebPubsubConnectionResponse> CreateWebPubSubConnectionString(
@@ -143,7 +143,7 @@ public class SurveysService(DaprClient daperClient, ISurveysRepository surveysRe
     }
 
 
-    private async Task BroadcastQuestionActivated(Survey survey, Question question)
+    private async Task BroadcastQuestionActivated(Survey survey, Question question, CancellationToken cancellationToken)
     {
         var pubSubClient = GetWebPubSubServiceClient();
         var dataTransferObject = question.ToDetailsResponse();

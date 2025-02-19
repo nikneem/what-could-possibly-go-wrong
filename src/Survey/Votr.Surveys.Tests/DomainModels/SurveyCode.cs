@@ -1,6 +1,4 @@
-using System;
 using Votr.Surveys.DomainModels;
-using Xunit;
 
 namespace Votr.Surveys.Tests.DomainModels
 {

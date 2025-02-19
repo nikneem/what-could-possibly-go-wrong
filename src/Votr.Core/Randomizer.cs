@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Votr.Core;
+﻿namespace Votr.Core;
 
 public static class Randomizer
 {
