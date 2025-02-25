@@ -53,6 +53,15 @@
                 </mat-form-field>
                 <input type="hidden" formControlName="id" />
                 <input type="hidden" formControlName="order" />
+                <button
+                  mat-stroked-button
+                  class="warn"
+                  (click)="activateQuestion(i)"
+                  *ngIf="question.controls['id'].value"
+                >
+                  <mat-icon>error_outline</mat-icon>
+                  <span>Activate</span>
+                </button>
               </div>
               <div class="answers-row">
                 <ng-container
@@ -65,7 +74,7 @@
                     <mat-form-field class="full-width-field">
                       <mat-label>Answer</mat-label>
                       <input matInput formControlName="text" />
-                      <mat-icon matSuffix (click)="removeQuestion(i)"
+                      <mat-icon matSuffix (click)="removeAnswer(i, answerIndex)"
                         >delete</mat-icon
                       >
                     </mat-form-field>

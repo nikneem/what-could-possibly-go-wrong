@@ -38,4 +38,12 @@ export class SurveysService {
     const url = `${this.baseUrl}/surveys/${code}`;
     return this.http.put<IResponseModel<ISurvey>>(url, payload);
   }
+
+  public activateSurveyQuestion(
+    code: string,
+    questionId: string
+  ): Observable<IResponseModel<ISurvey>> {
+    const url = `${this.baseUrl}/surveys/${code}/questions/${questionId}/activate`;
+    return this.http.get<IResponseModel<ISurvey>>(url);
+  }
 }

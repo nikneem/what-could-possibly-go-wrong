@@ -111,12 +111,22 @@ public class Survey : DomainModel<Guid>
         question.AddAnswerOption(text);
         SetTrackingState(TrackingState.Modified);
     }
+
     public void UpdateAnswerOption(Question question, Guid id, string text)
     {
         var answer = question.GetAnswerOption(id);
-        answer.SetText(text);
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            RemoveQuestion(question);
+        }
+        else
+        {
+            answer.SetText(text);
+        }
+
         SetTrackingState(TrackingState.Modified);
     }
+
     public void DeleteAnswerOption(Question question, Guid id)
     {
         var answer = question.GetAnswerOption(id);
@@ -153,25 +163,39 @@ public class Survey : DomainModel<Guid>
         UpdateExpiry(requestPayload.ExpiresOn);
         foreach (var payloadQuestion in requestPayload.Questions)
         {
+            var question = payloadQuestion.Id.HasValue
+                ? UpdateQuestion(payloadQuestion.Id.Value, payloadQuestion.Text)
+                : AddQuestion(payloadQuestion.Text);
 
-            var question = payloadQuestion.Id.HasValue ? 
-                UpdateQuestion(payloadQuestion.Id.Value, payloadQuestion.Text) : 
-                AddQuestion(payloadQuestion.Text);
-            
             foreach (var payloadAnswerOption in payloadQuestion.Answers)
             {
                 if (payloadAnswerOption.Id.HasValue)
                 {
                     UpdateAnswerOption(question, payloadAnswerOption.Id.Value, payloadAnswerOption.Text);
                 }
-                else
+                else if (!string.IsNullOrWhiteSpace(payloadAnswerOption.Text))
                 {
                     AddAnswerOption(question, payloadAnswerOption.Text);
                 }
             }
-
-
+            // Delete all answers from the domain model that are not in the DTO
+            var answerIds = payloadQuestion.Answers.Select(a => a.Id).ToList();
+            var answersToDelete = question.AnswerOptions.Where(a => a.TrackingState != TrackingState.New && !answerIds.Contains(a.Id)).ToList();
+            foreach (var answerToDelete in answersToDelete)
+            {
+                question.RemoveAnswerOption(answerToDelete);
+            }
         }
+        // Delete all questions from the domain model that are not in the DTO
+        var questionIds = requestPayload.Questions.Select(q => q.Id).ToList();
+        var questionsToDelete = Questions.Where(q => q.TrackingState != TrackingState.New && !questionIds.Contains(q.Id)).ToList();
+        foreach (var question in questionsToDelete)
+        {
+            RemoveQuestion(question);
+        }
+
+
+
     }
 
 

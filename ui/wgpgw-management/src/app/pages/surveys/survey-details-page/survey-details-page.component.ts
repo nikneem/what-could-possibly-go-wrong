@@ -24,11 +24,31 @@ export class SurveyDetailsPageComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private surveysService: SurveysService
   ) {
+    this.form = new FormGroup({});
+    this.createForm();
+  }
+
+  private createForm(): void {
     this.form = new FormGroup({
       name: new FormControl('', [Validators.required, Validators.minLength(5)]),
       expiresOn: new FormControl('', [Validators.required]),
       questions: new FormArray([]),
     });
+  }
+
+  private populateForm() {
+    if (this.survey) {
+      this.form.patchValue(this.survey);
+      this.survey.questions.forEach((question, questionIndex) => {
+        let questionForm = this.addQuestion();
+        questionForm.patchValue(question);
+        question.answerOptions.forEach((answer) => {
+          let answerForm = this.addAnswer(questionIndex);
+          answerForm.patchValue(answer);
+        });
+      });
+      this.form.markAsPristine();
+    }
   }
 
   private loadSurvey(code: string): void {
@@ -48,15 +68,7 @@ export class SurveyDetailsPageComponent implements OnInit, OnDestroy {
           this.isLoading = false;
           if (survey) {
             this.survey = survey;
-            this.form.patchValue(survey);
-            survey.questions.forEach((question, questionIndex) => {
-              let questionForm = this.addQuestion();
-              questionForm.patchValue(question);
-              question.answerOptions.forEach((answer) => {
-                let answerForm = this.addAnswer(questionIndex);
-                answerForm.patchValue(answer);
-              });
-            });
+            this.populateForm();
           }
         });
     }
@@ -79,7 +91,8 @@ export class SurveyDetailsPageComponent implements OnInit, OnDestroy {
             this.isLoading = false;
             if (survey) {
               this.survey = survey;
-              this.form.markAsPristine();
+              this.createForm();
+              this.populateForm();
             }
           });
       }
@@ -106,9 +119,13 @@ export class SurveyDetailsPageComponent implements OnInit, OnDestroy {
     });
 
     this.questions.push(questionForm);
+    this.form.markAsDirty();
     return questionForm;
   }
-
+  removeQuestion(index: number) {
+    this.questions.removeAt(index);
+    this.form.markAsDirty();
+  }
   addAnswer(index: number): FormGroup {
     const order = this.answers(index).length;
     let answerForm = new FormGroup({
@@ -117,11 +134,36 @@ export class SurveyDetailsPageComponent implements OnInit, OnDestroy {
       order: new FormControl(order, [Validators.required]),
     });
     this.answers(index).push(answerForm);
+    this.form.markAsDirty();
     return answerForm;
   }
+  removeAnswer(questionIndex: number, answerIndex: number) {
+    this.answers(questionIndex).removeAt(answerIndex);
+    this.form.markAsDirty();
+  }
 
-  removeQuestion(index: number) {
-    this.questions.removeAt(index);
+  activateQuestion(index: number) {
+    if (this.surveyCode) {
+      const question = this.questions.at(index);
+      if (question) {
+        this.surveyUpdateSubscription = this.surveysService
+          .activateSurveyQuestion(this.surveyCode, question.value.id)
+          .pipe(
+            map((response) => response.data),
+            catchError((error) => {
+              console.error(error);
+              return of(null);
+            })
+          )
+          .subscribe((survey: ISurvey | null | undefined) => {
+            this.isLoading = false;
+            if (survey) {
+              this.survey = survey;
+              this.form.markAsPristine();
+            }
+          });
+      }
+    }
   }
 
   save() {
