@@ -11,9 +11,9 @@ public class VotesServiceConfigurationValidation : IValidateOptions<VotesService
         {
             errorList.Add($"Votes service misconfiguration! Missing configuration value for '{VotesServiceConfiguration.DefaultSectionName}.{nameof(VotesServiceConfiguration.StorageAccountName)}'.");
         }
-        if (string.IsNullOrWhiteSpace(options.VotesTable))
+        if (string.IsNullOrWhiteSpace(options.Votes))
         {
-            errorList.Add($"Votes service misconfiguration! Missing configuration value for '{VotesServiceConfiguration.DefaultSectionName}.{nameof(VotesServiceConfiguration.VotesTable)}'.");
+            errorList.Add($"Votes service misconfiguration! Missing configuration value for '{VotesServiceConfiguration.DefaultSectionName}.{nameof(VotesServiceConfiguration.Votes)}'.");
         }
 
         if (errorList.Any())
