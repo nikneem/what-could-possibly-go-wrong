@@ -7,3 +7,9 @@ export interface IResponseModel<TItem> {
 export interface IRealtimeConnectionResponse {
   webPubsubEndpointUrl: string;
 }
+
+export interface IVoteCreateRequest {
+  surveyId: string;
+  questionId: string;
+  answerId: string;
+}

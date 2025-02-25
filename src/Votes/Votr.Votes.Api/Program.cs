@@ -1,6 +1,11 @@
+using Votr.Votes.Data.TableStorage.ExtensionMethods;
+using Votr.Votes.ExtensionMethods;
+
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddServiceDefaults();
+builder.AddServiceDefaults()
+    .AddVotesApi()
+    .WithTableStorage();
 
 // Add services to the container.
 

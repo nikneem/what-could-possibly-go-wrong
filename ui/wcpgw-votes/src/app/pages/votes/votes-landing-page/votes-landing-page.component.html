@@ -6,7 +6,7 @@
       [text]="pageError"
       title="Oops!"
     ></wcpgw-page-error>
-
+    <div *ngIf="success">Joe... ging goed</div>
     <div class="content-container" *ngIf="survey">
       <mat-card *ngIf="activeQuestion && form; else emptystate">
         <mat-card-header>

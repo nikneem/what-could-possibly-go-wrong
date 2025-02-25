@@ -6,6 +6,6 @@ public class VotesServiceConfiguration
 
     public string StorageAccountName { get; set; } = null!;
 
-    public string VotesTable { get; set; } = null!;
+    public string Votes { get; set; } = null!;
     
 }

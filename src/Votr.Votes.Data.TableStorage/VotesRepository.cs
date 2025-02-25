@@ -13,7 +13,7 @@ public class VotesRepository(TableServiceClient tableServiceClient, IOptions<Vot
     public async Task<bool> Save(Vote vote, CancellationToken cancellationToken)
     {
 
-        var votesTableName = options.Value.VotesTable;
+        var votesTableName = options.Value.Votes;
         var tableClient = tableServiceClient.GetTableClient(votesTableName);
         var entity = vote.ToEntity();
         var dirtyReviewsTable = await tableClient.AddEntityAsync(entity, cancellationToken);
@@ -23,7 +23,7 @@ public class VotesRepository(TableServiceClient tableServiceClient, IOptions<Vot
     public async Task<List<Vote>> ListPerQuestion( Guid surveyId, Guid questionId, CancellationToken cancellationToken)
     {
         var votes = new List<Vote>();
-        var votesTableName = options.Value.VotesTable;
+        var votesTableName = options.Value.Votes;
         var tableClient = tableServiceClient.GetTableClient(votesTableName);
         var query = tableClient.QueryAsync<VoteEntity>(ent => ent.PartitionKey == questionId.ToString() && ent.SurveyId == surveyId);
         
