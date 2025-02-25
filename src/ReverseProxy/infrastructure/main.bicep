@@ -1,6 +1,6 @@
 targetScope = 'subscription'
 
-var systemName = 'spreavw-prxy'
+var systemName = 'votr-prxy'
 
 @allowed([
   'dev'

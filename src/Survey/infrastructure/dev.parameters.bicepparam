@@ -7,6 +7,7 @@ param landingzoneEnvironment = {
   appConfiguration: 'votr-landingzone-dev-northeurope-appcfg'
   applicationInsights: 'votr-landingzone-dev-northeurope-ai'
   serviceBus: 'votr-landingzone-dev-northeurope-servicebus'
+  cosmosDb: 'votr-landingzone-dev-northeurope-cdb'
 }
 param corsHostnames = [
   'http://localhost:4200'

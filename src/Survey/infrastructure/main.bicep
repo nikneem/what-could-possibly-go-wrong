@@ -1,6 +1,6 @@
 targetScope = 'subscription'
 
-var systemName = 'spreavw-rvws'
+var systemName = 'votr-surveys'
 
 @allowed([
   'dev'
