@@ -1,0 +1,139 @@
+name: Reverse Proxy
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+    paths:
+      - "src/Votr.Core/**"
+      - ".github/workflows/proxy.yml"
+      - "src/ReverseProxy/**"
+      - "src/Aspire/**"
+  push:
+    branches:
+      - main
+    paths:
+      - "src/Votr.Core/**"
+      - ".github/workflows/proxy.yml"
+      - "src/ReverseProxy/**"
+      - "src/Aspire/**"
+
+env:
+  IMAGE_NAME: votr-proxy-api
+  INFRA_PATH: src/ReverseProxy/infrastructure
+  DOCKERFILE: ReverseProxy/Votr.ReverseProxy.Api/Dockerfile
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  versionize:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    outputs:
+      semver: ${{ steps.gitversion.outputs.SemVer }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v1.1.1
+        with:
+          versionSpec: "5.x"
+      - name: Determine Version
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v1.1.1
+        with:
+          useConfigFile: true
+
+  infrastructure:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Transpile main template
+        working-directory: ${{ env.INFRA_PATH }}
+        run: |
+          az bicep build --file main.bicep
+          az bicep build-params --file dev.parameters.bicepparam
+          az bicep build-params --file prd.parameters.bicepparam
+      - name: Publish template JSON
+        uses: actions/upload-artifact@v4
+        with:
+          name: template
+          path: "${{env.INFRA_PATH}}/*.json"
+
+  build:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    needs: versionize
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build container images
+        working-directory: src
+        run: |
+          docker build . --file $DOCKERFILE --tag ${{ secrets.ACR_LOGIN_SERVER }}/$IMAGE_NAME:${{needs.versionize.outputs.semver}}
+      - name: Login to ACR
+        uses: azure/docker-login@v2
+        with:
+          login-server: ${{ secrets.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+      - name: Push container images
+        working-directory: src
+        run: |
+          docker push ${{ secrets.ACR_LOGIN_SERVER }}/$IMAGE_NAME:${{needs.versionize.outputs.semver}}
+
+  dev-deployment:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    needs: [build, infrastructure, versionize]
+    name: Deploy to Development
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: template
+          path: ./infrastructure
+      - name: Az CLI login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.SPREAVIEW_DEV_CLIENT_ID }}
+          tenant-id: ${{ secrets.SPREAVIEW_DEV_TENANT_ID }}
+          subscription-id: ${{ secrets.SPREAVIEW_DEV_SUBSCRIPTION_ID }}
+      - uses: azure/arm-deploy@v2
+        id: deploy
+        with:
+          scope: subscription
+          deploymentName: ${{env.IMAGE_NAME}}-dev
+          region: northeurope
+          template: ./infrastructure/main.json
+          parameters: ./infrastructure/dev.parameters.json --parameters containerVersion=${{needs.versionize.outputs.semver}} acrLoginServer=${{ secrets.ACR_LOGIN_SERVER }} acrUsername=${{ secrets.ACR_USERNAME }} acrPassword=${{ secrets.ACR_PASSWORD }} containerAppName=${{env.IMAGE_NAME}}
+
+  prod-deployment:
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    needs: [build, infrastructure, versionize, dev-deployment]
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: template
+          path: ./infrastructure
+      - name: Az CLI login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.SPREAVIEW_PROD_CLIENT_ID }}
+          tenant-id: ${{ secrets.SPREAVIEW_PROD_TENANT_ID }}
+          subscription-id: ${{ secrets.SPREAVIEW_PROD_SUBSCRIPTION_ID }}
+      - uses: azure/arm-deploy@v2
+        id: deploy
+        with:
+          scope: subscription
+          deploymentName: ${{env.IMAGE_NAME}}-prd
+          region: northeurope
+          template: ./infrastructure/main.json
+          parameters: ./infrastructure/prd.parameters.json --parameters containerVersion=${{needs.versionize.outputs.semver}} acrLoginServer=${{ secrets.ACR_LOGIN_SERVER }} acrUsername=${{ secrets.ACR_USERNAME }} acrPassword=${{ secrets.ACR_PASSWORD }} containerAppName=${{env.IMAGE_NAME}}
