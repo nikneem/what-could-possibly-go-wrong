@@ -100,9 +100,9 @@ jobs:
       - name: Az CLI login
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.SPREAVIEW_DEV_CLIENT_ID }}
-          tenant-id: ${{ secrets.SPREAVIEW_DEV_TENANT_ID }}
-          subscription-id: ${{ secrets.SPREAVIEW_DEV_SUBSCRIPTION_ID }}
+          client-id: ${{ secrets.WGPGW_CLIENT_ID }}
+          tenant-id: ${{ secrets.WGPGW_TENANT_ID }}
+          subscription-id: ${{ secrets.WGPGW_SUBSCRIPTION_ID }}
       - uses: azure/arm-deploy@v2
         id: deploy
         with:
@@ -112,28 +112,28 @@ jobs:
           template: ./infrastructure/main.json
           parameters: ./infrastructure/dev.parameters.json --parameters containerVersion=${{needs.versionize.outputs.semver}} acrLoginServer=${{ secrets.ACR_LOGIN_SERVER }} acrUsername=${{ secrets.ACR_USERNAME }} acrPassword=${{ secrets.ACR_PASSWORD }} containerAppName=${{env.IMAGE_NAME}}
 
-  prod-deployment:
-    if: (github.event_name == 'push' && github.ref == 'refs/heads/main')
-    needs: [build, infrastructure, versionize, dev-deployment]
-    name: Deploy to Production
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: template
-          path: ./infrastructure
-      - name: Az CLI login
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.SPREAVIEW_PROD_CLIENT_ID }}
-          tenant-id: ${{ secrets.SPREAVIEW_PROD_TENANT_ID }}
-          subscription-id: ${{ secrets.SPREAVIEW_PROD_SUBSCRIPTION_ID }}
-      - uses: azure/arm-deploy@v2
-        id: deploy
-        with:
-          scope: subscription
-          deploymentName: ${{env.IMAGE_NAME}}-prd
-          region: northeurope
-          template: ./infrastructure/main.json
-          parameters: ./infrastructure/prd.parameters.json --parameters containerVersion=${{needs.versionize.outputs.semver}} acrLoginServer=${{ secrets.ACR_LOGIN_SERVER }} acrUsername=${{ secrets.ACR_USERNAME }} acrPassword=${{ secrets.ACR_PASSWORD }} containerAppName=${{env.IMAGE_NAME}}
+  # prod-deployment:
+  #   if: (github.event_name == 'push' && github.ref == 'refs/heads/main')
+  #   needs: [build, infrastructure, versionize, dev-deployment]
+  #   name: Deploy to Production
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Download Artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: template
+  #         path: ./infrastructure
+  #     - name: Az CLI login
+  #       uses: azure/login@v1
+  #       with:
+  #         client-id: ${{ secrets.SPREAVIEW_PROD_CLIENT_ID }}
+  #         tenant-id: ${{ secrets.SPREAVIEW_PROD_TENANT_ID }}
+  #         subscription-id: ${{ secrets.SPREAVIEW_PROD_SUBSCRIPTION_ID }}
+  #     - uses: azure/arm-deploy@v2
+  #       id: deploy
+  #       with:
+  #         scope: subscription
+  #         deploymentName: ${{env.IMAGE_NAME}}-prd
+  #         region: northeurope
+  #         template: ./infrastructure/main.json
+  #         parameters: ./infrastructure/prd.parameters.json --parameters containerVersion=${{needs.versionize.outputs.semver}} acrLoginServer=${{ secrets.ACR_LOGIN_SERVER }} acrUsername=${{ secrets.ACR_USERNAME }} acrPassword=${{ secrets.ACR_PASSWORD }} containerAppName=${{env.IMAGE_NAME}}
