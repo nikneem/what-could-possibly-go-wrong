@@ -1,26 +1,26 @@
-name: Surveys
+name: Votes
 
 on:
   pull_request:
     types: [opened, edited, synchronize, reopened]
     paths:
       - "src/Votr.Core/**"
-      - ".github/workflows/surveys.yml"
-      - "src/Survey/**"
+      - ".github/workflows/votes.yml"
+      - "src/Votes/**"
       - "src/Aspire/**"
   push:
     branches:
       - main
     paths:
       - "src/Votr.Core/**"
-      - ".github/workflows/surveys.yml"
-      - "src/Survey/**"
+      - ".github/workflows/votes.yml"
+      - "src/Votes/**"
       - "src/Aspire/**"
 
 env:
-  IMAGE_NAME: votr-surveys-api
-  INFRA_PATH: src/Survey/infrastructure
-  DOCKERFILE: Survey/Votr.Surveys.Api/Dockerfile
+  IMAGE_NAME: votr-votes-api
+  INFRA_PATH: src/Votes/infrastructure
+  DOCKERFILE: Votes/Votr.Votes.Api/Dockerfile
 
 permissions:
   id-token: write
