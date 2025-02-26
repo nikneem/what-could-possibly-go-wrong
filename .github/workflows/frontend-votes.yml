@@ -96,7 +96,7 @@ jobs:
         id: deploy
         with:
           scope: subscription
-          deploymentName: spreaview-swa-dev
+          deploymentName: votr-votes-website-dev
           region: westeurope
           template: ./infrastructure/main.json
           parameters: ./infrastructure/dev.parameters.json
