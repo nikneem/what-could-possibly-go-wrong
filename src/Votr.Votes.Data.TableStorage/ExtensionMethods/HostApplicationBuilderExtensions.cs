@@ -13,7 +13,8 @@ public static class HostApplicationBuilderExtensions
     public static IHostApplicationBuilder WithTableStorage(this IHostApplicationBuilder builder)
     {
         var identity = CloudIdentity.GetCloudIdentity();
-        var configSection = builder.Configuration.GetRequiredSection(VotesServiceConfiguration.DefaultSectionName);
+        var builtConfiguration = builder.Configuration.Build();
+        var configSection = builtConfiguration.GetRequiredSection(VotesServiceConfiguration.DefaultSectionName);
         var reviewsConfiguration = configSection.Get<VotesServiceConfiguration>();
         if (reviewsConfiguration == null)
         {
