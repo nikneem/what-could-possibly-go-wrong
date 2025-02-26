@@ -170,6 +170,16 @@ module appConfigRoleAssignment '../../../infrastructure/shared/role-assignment-a
     systemName: systemName
   }
 }
+
+module webPubSubRoleAssignment '../../../infrastructure/shared/role-assignment-webpubsub.bicep' = {
+  name: '${defaultResourceName}-pubsub-module'
+  scope: resourceGroup(landingzoneEnvironment.resourceGroup)
+  params: {
+    containerAppPrincipalId: apiContainerApp.identity.principalId
+    systemName: systemName
+  }
+}
+
 module tableDataRoleAssignment '../../../infrastructure/shared/role-assignment-table-data-contrib.bicep' = {
   name: '${defaultResourceName}-tablecontrib-module'
   params: {
