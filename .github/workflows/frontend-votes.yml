@@ -1,4 +1,4 @@
-name: Management Portal
+name: Votes website
 
 on:
   push:

@@ -127,6 +127,16 @@ module appConfigRoleAssignment '../../../infrastructure/shared/role-assignment-a
     systemName: systemName
   }
 }
+
+module webPubSubRoleAssignment '../../../infrastructure/shared/role-assignment-webpubsub.bicep' = {
+  name: '${defaultResourceName}-pubsub-module'
+  scope: resourceGroup(landingzoneEnvironment.resourceGroup)
+  params: {
+    containerAppPrincipalId: apiContainerApp.identity.principalId
+    systemName: systemName
+  }
+}
+
 // Adding cosmos RBAC
 module cosmosDbPermissions '../../../infrastructure/shared/cosmosdb-read-write-permissions.bicep' = {
   name: '${defaultResourceName}-cosmosdb-permissions'
