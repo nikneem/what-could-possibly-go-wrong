@@ -22,7 +22,7 @@
               >
                 <p>{{ option.text }}</p>
                 <wcpgw-graph-progress-bar
-                  [progress]="12"
+                  [progress]="getProgressFor(option.id)"
                 ></wcpgw-graph-progress-bar>
               </div>
             </div>

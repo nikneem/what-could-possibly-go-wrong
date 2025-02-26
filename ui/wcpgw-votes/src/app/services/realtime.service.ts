@@ -1,11 +1,15 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, signal, WritableSignal } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { IRealtimeConnectionResponse } from '@shared-state/models/votr.models';
+import {
+  IQuestionVotes,
+  IRealtimeConnectionResponse,
+} from '@shared-state/models/votr.models';
 import { IQuestion } from '@shared-state/survey/survey.models';
 import { Store } from '@ngrx/store';
 import { IAppState } from '@shared-state/app.state';
 import { SurveyActions } from '@shared-state/survey/survey.actions';
+import { Observable } from 'rxjs';
 
 export interface IRealtimeEvent<TPayload> {
   messageType: string;
@@ -20,6 +24,8 @@ export class RealtimeService {
   private ackCounter: number = 0;
   public pubsubClient?: WebSocket;
   private surveyCode?: string;
+
+  votesReceived: WritableSignal<IQuestionVotes | null> = signal(null);
 
   constructor(private http: HttpClient, private store: Store<IAppState>) {
     this.baseUrl = environment.apiEndpoint;
@@ -105,11 +111,20 @@ export class RealtimeService {
         );
         //this.store.dispatch(pollActivated({ poll: activatedPoll }));
       }
+      if (event.messageType === 'SurveyQuestionVotesChanged') {
+        const questionVotes = event.payload as IQuestionVotes;
+        this.handleVotesReceived(questionVotes);
+        //this.store.dispatch(pollActivated({ poll: activatedPoll }));
+      }
       // if (event.eventName === 'poll-votes') {
       //   const incomingVotes = event.payload as Array<IPollVoteDto>;
       //   this.store.dispatch(voteSeriesUpdate({ dto: incomingVotes }));
       // }
     }
+  }
+
+  private handleVotesReceived(votes: IQuestionVotes) {
+    this.votesReceived.update((v) => votes);
   }
 
   //  webPubsubEndpointUrl;

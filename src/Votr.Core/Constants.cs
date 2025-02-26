@@ -24,4 +24,5 @@ public class RegularExpression
 public class RealtimeMessage
 {
     public const string SurveyQuestionActivated = "SurveyQuestionActivated";
+    public const string SurveyQuestionVotesChanged = "SurveyQuestionVotesChanged";
 }

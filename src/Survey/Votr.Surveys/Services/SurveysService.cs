@@ -19,7 +19,7 @@ using Votr.Surveys.Mappings;
 
 namespace Votr.Surveys.Services;
 
-public class SurveysService(DaprClient daperClient, ISurveysRepository surveysRepository, IOptions<AzureServiceConfiguration> options) : ISurveysService
+public class SurveysService(DaprClient daprClient, ISurveysRepository surveysRepository, IOptions<AzureServiceConfiguration> options) : ISurveysService
 {
     public async Task<VotrResponse<List<SurveyDetailsResponse>>> List(CancellationToken cancellationToken)
     {
@@ -111,12 +111,13 @@ public class SurveysService(DaprClient daperClient, ISurveysRepository surveysRe
     private async Task AddQuestionToDistributedCache(Survey survey, Question question, CancellationToken cancellationToken)
     {
         var cacheKey = CacheName.QuestionVotes(survey.Id, question.Id);
-        var votesState = new QuestionVotesResponse(
+        var votesState = new QuestionVotesCacheDto(
             survey.Id,
+            survey.Code,
             question.Id,
             question.Text,
             question.AnswerOptions.Select(a => new QuestionAnswer(a.Id, a.Text, new List<Guid>())).ToList());
-        await daperClient.SaveStateAsync("votr-state-store", cacheKey, votesState, metadata: new Dictionary<string, string>()
+        await daprClient.SaveStateAsync("votr-state-store", cacheKey, votesState, metadata: new Dictionary<string, string>()
         {
             {
                 "ttlInSeconds", "3600" // Cache for one hour
