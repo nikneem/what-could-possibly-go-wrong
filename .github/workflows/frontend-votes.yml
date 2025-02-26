@@ -48,7 +48,7 @@ jobs:
       - name: Upload Published Files
         uses: actions/upload-artifact@v4
         with:
-          name: production
+          name: beta
           path: ${{ env.SPA_SRC }}/dist/production
 
   infrastructure:
