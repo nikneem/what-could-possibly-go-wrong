@@ -49,7 +49,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: production
-          path: dist/production
+          path: ${{ env.SPA_SRC }}/dist/production
 
   infrastructure:
     runs-on: ubuntu-latest
