@@ -65,13 +65,13 @@ resource apiContainerApp 'Microsoft.App/containerApps@2024-10-02-preview' = {
           allowedMethods: ['*']
           maxAge: 0
         }
-        // customDomains: [
-        //   {
-        //     name: apiHostname
-        //     bindingType: 'SniEnabled'
-        //     certificateId: containerAppEnvironments::certificate.id
-        //   }
-        // ]
+        customDomains: [
+          {
+            name: apiHostname
+            bindingType: 'SniEnabled'
+            certificateId: containerAppEnvironments::certificate.id
+          }
+        ]
       }
       dapr: {
         enabled: true

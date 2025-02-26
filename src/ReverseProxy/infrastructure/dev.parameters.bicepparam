@@ -15,5 +15,5 @@ param corsHostnames = [
 param acrPassword = ''
 param desiredContainerCpu = '0.25'
 param desiredContainerMemory = '0.5Gi'
-param apiHostname = 'beta-api.spreaview.com'
-param certificateName = 'beta-api.spreaview.com-spreavw--250110161619'
+param apiHostname = 'votr-api.hexmaster.nl'
+param certificateName = 'votr-api.hexmaster.nl-votr-lan-250226080626'
