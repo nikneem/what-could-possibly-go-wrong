@@ -79,7 +79,7 @@ jobs:
         with:
           name: beta
           path: dist
-      - name: Download Artifact
+      - name: Download ARM Template
         uses: actions/download-artifact@v4
         with:
           name: template
@@ -113,7 +113,7 @@ jobs:
         with:
           azcliversion: 2.42.0
           inlineScript: |
-            SWA_SECRETS=$(az staticwebapp secrets list -n spreavw-frontend-dev-westeurope-swa -g rg-spreavw-frontend-dev-westeurope --query 'properties.apiKey' -o tsv )
+            SWA_SECRETS=$(az staticwebapp secrets list -n votr-mgmt-frontend-dev-westeurope-swa -g rg-votr-mgmt-frontend-dev-westeurope --query 'properties.apiKey' -o tsv )
             echo "::add-mask::$SWA_SECRETS"
             echo SWA_SECRETS=$SWA_SECRETS >> $GITHUB_OUTPUT
 

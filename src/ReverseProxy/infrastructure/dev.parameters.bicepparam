@@ -11,6 +11,8 @@ param landingzoneEnvironment = {
 param corsHostnames = [
   'http://localhost:4200'
   'http://localhost:4201'
+  'https://votr-mgmt.hexmaster.nl'
+  'https://votr.hexmaster.nl'
 ]
 param acrPassword = ''
 param desiredContainerCpu = '0.25'
