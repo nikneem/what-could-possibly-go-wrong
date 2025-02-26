@@ -2,7 +2,6 @@ using Votr.ReverseProxy;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Transforms;
 
-var myCorsPolicyName = "allow-dev"; 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults(false);
@@ -21,16 +20,6 @@ var proxyBuilder = builder.Services
         });
     });
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(myCorsPolicyName, bldr =>
-    {
-        bldr.WithOrigins( "http://localhost:4200", "http://localhost:2401")
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
-    });
-});
 
 if (builder.Environment.IsDevelopment())
 {
@@ -43,7 +32,7 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
-app.MapDefaultEndpoints(myCorsPolicyName);
+app.MapDefaultEndpoints(true);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

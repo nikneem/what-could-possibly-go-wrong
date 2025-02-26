@@ -87,7 +87,7 @@ export class VotesLandingPageComponent implements OnInit, OnDestroy {
   private activateQuestion(question: IQuestion) {
     if (this.survey) {
       this.form = new FormGroup({
-        code: new FormControl(this.survey.id, [Validators.required]),
+        surveyId: new FormControl(this.survey.id, [Validators.required]),
         questionId: new FormControl(question.id, [Validators.required]),
         answerId: new FormControl(null, [Validators.required]),
       });
@@ -98,13 +98,17 @@ export class VotesLandingPageComponent implements OnInit, OnDestroy {
     if (this.form?.valid && !this.form?.pristine) {
       const requestPayload = this.form.value as IVoteCreateRequest;
       this.votesService
-        .castVote(requestPayload)
+        .castVote(this.clientId, requestPayload)
         .pipe(
           map((response) => response.ok),
           catchError((error) => of(false))
         )
         .subscribe((success) => {
           this.success = success;
+          if (this.success) {
+            this.form?.markAsPristine();
+            setTimeout(() => (this.success = false), 5000);
+          }
         });
     }
   }

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Votr.Core.Identity;
 using Votr.Votes.Abstractions;
 using Votr.Votes.Configuration;
@@ -26,8 +27,9 @@ public static class HostApplicationBuilderExtensions
             azure.AddTableServiceClient(new Uri($"https://{reviewsConfiguration.StorageAccountName}.table.core.windows.net"));
         });
 
-
         builder.Services.AddScoped<IVotesRepository, VotesRepository>();
+        builder.Services.AddSingleton<IValidateOptions<VotesServiceConfiguration>, VotesServiceConfigurationValidation>();
+        builder.Services.AddOptions<VotesServiceConfiguration>().Bind(configSection).ValidateOnStart();
 
         return builder;
     }

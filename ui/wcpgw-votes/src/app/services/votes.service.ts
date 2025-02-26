@@ -14,9 +14,15 @@ export class VotesService {
   }
 
   public castVote(
+    clientId: string,
     requestData: IVoteCreateRequest
   ): Observable<HttpResponse<Response>> {
     const url = `${this.baseUrl}/votes`;
-    return this.http.post<Response>(url, requestData, { observe: 'response' });
+    return this.http.post<Response>(url, requestData, {
+      observe: 'response',
+      headers: {
+        'X-VotR-VoterId': clientId,
+      },
+    });
   }
 }

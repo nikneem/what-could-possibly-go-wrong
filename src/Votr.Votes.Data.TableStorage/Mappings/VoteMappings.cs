@@ -11,8 +11,8 @@ public static class VoteMappings
     {
         return new VoteEntity
         {
-            PartitionKey = vote.QuestionId.ToString(),
-            RowKey = vote.Id.ToString(),
+            PartitionKey = vote.QuestionId.ToString(), // Question ID
+            RowKey = vote.Id.ToString(),               // Voter ID
             SurveyId = vote.SurveyId,
             AnswerOption = vote.AnswerOption,
             Timestamp = DateTimeOffset.UtcNow

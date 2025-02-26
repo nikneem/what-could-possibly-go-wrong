@@ -16,7 +16,7 @@ public class VotesRepository(TableServiceClient tableServiceClient, IOptions<Vot
         var votesTableName = options.Value.Votes;
         var tableClient = tableServiceClient.GetTableClient(votesTableName);
         var entity = vote.ToEntity();
-        var dirtyReviewsTable = await tableClient.AddEntityAsync(entity, cancellationToken);
+        var dirtyReviewsTable = await tableClient.UpsertEntityAsync(entity, TableUpdateMode.Replace, cancellationToken);
         return !dirtyReviewsTable.IsError;
     }
 

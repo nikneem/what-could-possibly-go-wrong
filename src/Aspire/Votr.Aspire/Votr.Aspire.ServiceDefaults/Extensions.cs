@@ -15,6 +15,8 @@ namespace Microsoft.Extensions.Hosting;
 // To learn more about using this project, see https://aka.ms/dotnet/aspire/service-defaults
 public static class Extensions
 {
+    private const string MyCorsPolicyName = "allow-dev";
+
     public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder, bool addVotrCore = true) where TBuilder : IHostApplicationBuilder
     {
         builder.ConfigureOpenTelemetry();
@@ -33,6 +35,20 @@ public static class Extensions
         // {
         //     options.AllowedSchemes = ["https"];
         // });
+
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy(MyCorsPolicyName, bldr =>
+            {
+                bldr.WithOrigins(
+                        "http://localhost:4200",
+                        "http://localhost:4201"
+                    )
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+            });
+        });
 
         if (addVotrCore)
         {
@@ -102,7 +118,7 @@ public static class Extensions
         return builder;
     }
 
-    public static WebApplication MapDefaultEndpoints(this WebApplication app, string? corsPolicyName = null)
+    public static WebApplication MapDefaultEndpoints(this WebApplication app, bool addCorsPolicy = false)
     {
         app.MapHealthChecks("/health");
         app.MapHealthChecks("/alive", new HealthCheckOptions
@@ -110,9 +126,9 @@ public static class Extensions
             Predicate = r => r.Tags.Contains("live")
         });
         app.UseRouting();
-        if (!string.IsNullOrWhiteSpace(corsPolicyName))
+        if (addCorsPolicy)
         {
-            app.UseCors(corsPolicyName);
+            app.UseCors(MyCorsPolicyName);
         }
 
         app.MapSubscribeHandler();
