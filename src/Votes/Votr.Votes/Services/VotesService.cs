@@ -83,7 +83,6 @@ public class VotesService(DaprClient daprClient, IVotesRepository repository, IO
         return VotrResponse<QuestionVotesCacheDto>.Success(votesState);
     }
 
-
     private async Task<QuestionVotesCacheDto?> UpdateQuestionVotesInStateStore(Guid surveyId, Guid questionId, Guid answerId, Guid voterId, CancellationToken cancellationToken)
     {
         var cacheKey = CacheName.QuestionVotes(surveyId, questionId);
@@ -116,7 +115,6 @@ public class VotesService(DaprClient daprClient, IVotesRepository repository, IO
 
         return votesState;
     }
-
 
     private async Task BroadcastSurveyQuestionVotesChanged(QuestionVotesResponse votes, CancellationToken cancellationToken)
     {
