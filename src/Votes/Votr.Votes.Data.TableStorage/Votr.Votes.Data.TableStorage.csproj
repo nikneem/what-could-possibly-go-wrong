@@ -12,12 +12,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Votes\Votr.Votes\Votr.Votes.csproj" />
-    <ProjectReference Include="..\Votr.Core\Votr.Core.csproj" />
+    <Folder Include="Mappings\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Mappings\" />
+    <ProjectReference Include="..\Votr.Votes\Votr.Votes.csproj" />
   </ItemGroup>
 
 </Project>
