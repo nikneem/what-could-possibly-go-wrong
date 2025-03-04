@@ -295,6 +295,13 @@ resource cosmosConnectionString 'Microsoft.AppConfiguration/configurationStores/
     value: 'AccountEndpoint=${cosmosDb.properties.documentEndpoint}'
   }
 }
+resource cacheConnectionString 'Microsoft.AppConfiguration/configurationStores/keyValues@2023-09-01-preview' = {
+  name: 'ConnectionStrings:cache'
+  parent: appConfiguration
+  properties: {
+    value: '${redisCache.properties.hostName}:6380,password=${redisCache.listKeys().primaryKey},ssl=True,abortConnect=False'
+  }
+}
 resource cosmosDatabase 'Microsoft.AppConfiguration/configurationStores/keyValues@2023-09-01-preview' = {
   name: 'AzureServices:CosmosDbDatabase'
   parent: appConfiguration

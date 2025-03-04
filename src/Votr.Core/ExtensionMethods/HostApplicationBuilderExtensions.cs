@@ -68,6 +68,7 @@ public static class HostApplicationBuilderExtensions
         var azureServicesSection = builder.Configuration.GetSection(AzureServiceConfiguration.DefaultSectionName);
         builder.Services.AddOptions<AzureServiceConfiguration>().Bind(azureServicesSection).ValidateOnStart();
         builder.Services.AddVotrCoreServices();
+        builder.AddRedisClient("cache");
 
         return builder;
     }
