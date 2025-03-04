@@ -16,6 +16,7 @@ public class VotesRepository(TableServiceClient tableServiceClient) : IVotesRepo
     public async Task<bool> Save(Vote vote, CancellationToken cancellationToken)
     {
         var tableClient = tableServiceClient.GetTableClient(VotesTableName);
+        await tableClient.CreateIfNotExistsAsync(cancellationToken);
         var entity = vote.ToEntity();
         var dirtyReviewsTable = await tableClient.UpsertEntityAsync(entity, TableUpdateMode.Replace, cancellationToken);
         return !dirtyReviewsTable.IsError;

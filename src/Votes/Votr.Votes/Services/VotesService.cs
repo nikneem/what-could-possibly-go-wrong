@@ -1,12 +1,8 @@
 ﻿using Microsoft.Extensions.Options;
-using System.Text.Json;
-using Azure.Core;
-using Votr.Core;
 using Votr.Core.Abstractions.Caching;
 using Votr.Core.Caching;
 using Votr.Core.Caching.Models;
 using Votr.Core.DataTransferObjects;
-using Votr.Core.Identity;
 using Votr.Votes.Abstractions;
 using Votr.Votes.DataTransferObjects;
 using Votr.Votes.DomainModels;

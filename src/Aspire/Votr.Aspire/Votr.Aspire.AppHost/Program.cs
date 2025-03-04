@@ -1,5 +1,3 @@
-using Aspire.Hosting;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
@@ -40,6 +38,8 @@ var tables = storage.AddTables("votes");
 
 var surveysApi = builder.AddProject<Projects.Votr_Surveys_Api>("votr-surveys-api")
     .WaitFor(cosmos)
+    .WaitFor(cache)
+    .WaitFor(signalR)
     .WithReference(container)
     .WithReference(cache)
     .WithReference(signalR)
@@ -49,6 +49,9 @@ var surveysApi = builder.AddProject<Projects.Votr_Surveys_Api>("votr-surveys-api
 //    .WithDaprSidecar(options);
 
 var votesApi = builder.AddProject<Projects.Votr_Votes_Api>("votr-votes-api")
+    .WaitFor(storage)
+    .WaitFor(cache)
+    .WaitFor(signalR)
     .WithReference(tables)
     .WithReference(signalR)
     .WithReference(cache);
