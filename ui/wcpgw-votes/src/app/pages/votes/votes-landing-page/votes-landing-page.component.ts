@@ -46,7 +46,6 @@ export class VotesLandingPageComponent implements OnInit, OnDestroy {
         this.isLoading = state.isLoading;
         this.errorMessage = state.errorMessage;
         this.survey = state.survey;
-
         if (state.survey) {
           if (this.surveyCode !== state.survey.code) {
             this.realtimeService.connect(state.survey.code, this.clientId);
@@ -57,11 +56,11 @@ export class VotesLandingPageComponent implements OnInit, OnDestroy {
           state.activeQuestion &&
           state.activeQuestion.id !== this.activeQuestion?.id
         ) {
+          this.activeQuestion = state.activeQuestion;
           this.activateQuestion(state.activeQuestion);
         }
 
         this.surveyCode = state.survey?.code;
-        this.activeQuestion = state.activeQuestion;
       });
   }
 
