@@ -12,9 +12,9 @@ public class CosmosDbRepositoryBase(CosmosClient cosmos, IOptions<AzureServiceCo
 
     protected IOptions<AzureServiceConfiguration> Options => options;
 
-    protected Container CosmosDbContainer(string containerId)
+    protected Container GetCosmosDbContainer(string containerId)
     {
-        if (_cosmosContainer != null && Equals(_cosmosContainer.Id,containerId))
+        if (_cosmosContainer != null && Equals(_cosmosContainer.Id, containerId))
         {
             return _cosmosContainer;
         }

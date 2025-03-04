@@ -42,6 +42,15 @@ module storageAccountConfiguration '../../../infrastructure/shared/configuration
     settingValue: storageAccount.name
   }
 }
+module storageAccountConnectionString '../../../infrastructure/shared/configuration-value.bicep' = {
+  name: '${systemName}-config-storage'
+  scope: resourceGroup(landingzoneEnvironment.resourceGroup)
+  params: {
+    appConfigurationName: landingzoneEnvironment.appConfiguration
+    settingName: 'ConnectionStrings:votes'
+    settingValue: 'https://${storageAccount.name}.table.${environment().suffixes.storage}'
+  }
+}
 
 module speakerTablesModule '../../../infrastructure/shared/configuration-value.bicep' = [
   for table in speakerTables: {

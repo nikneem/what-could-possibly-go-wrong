@@ -53,6 +53,7 @@ public static class Extensions
         if (addVotrCore)
         {
             builder.AddVotrCore();
+            builder.AddAzureCosmosClient("cosmos");
         }
 
         return builder;

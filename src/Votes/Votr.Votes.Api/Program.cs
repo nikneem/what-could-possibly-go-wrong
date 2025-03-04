@@ -5,7 +5,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults()
     .AddVotesApi()
-    .WithTableStorage();
+    .WithTableStorage()
+    .AddAzureTableClient("votes");
+
 
 // Add services to the container.
 

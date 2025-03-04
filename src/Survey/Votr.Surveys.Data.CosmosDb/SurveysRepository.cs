@@ -118,7 +118,7 @@ public class SurveysRepository (CosmosClient cosmos,
 
     private Container GetContainer()
     {
-        return CosmosDbContainer(ContainerName());
+        return GetCosmosDbContainer(ContainerName());
     }
     private string ContainerName()
     {

@@ -288,6 +288,13 @@ resource cosmosEndpoint 'Microsoft.AppConfiguration/configurationStores/keyValue
     value: cosmosDb.properties.documentEndpoint
   }
 }
+resource cosmosConnectionString 'Microsoft.AppConfiguration/configurationStores/keyValues@2023-09-01-preview' = {
+  name: 'ConnectionStrings:votr'
+  parent: appConfiguration
+  properties: {
+    value: 'AccountEndpoint=${cosmosDb.properties.documentEndpoint}'
+  }
+}
 resource cosmosDatabase 'Microsoft.AppConfiguration/configurationStores/keyValues@2023-09-01-preview' = {
   name: 'AzureServices:CosmosDbDatabase'
   parent: appConfiguration

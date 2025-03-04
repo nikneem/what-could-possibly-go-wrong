@@ -1,9 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Votr.Core.Configuration;
-using Votr.Core.CosmosDb.ExtensionMethods;
 using Votr.Core.Identity;
 
 namespace Votr.Core.ExtensionMethods;
@@ -67,9 +67,8 @@ public static class HostApplicationBuilderExtensions
 
         var azureServicesSection = builder.Configuration.GetSection(AzureServiceConfiguration.DefaultSectionName);
         builder.Services.AddOptions<AzureServiceConfiguration>().Bind(azureServicesSection).ValidateOnStart();
-
         builder.Services.AddVotrCoreServices();
-        builder.Services.AddCosmosDb();
+
         return builder;
     }
 
