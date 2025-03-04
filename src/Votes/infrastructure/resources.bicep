@@ -43,7 +43,7 @@ module storageAccountConfiguration '../../../infrastructure/shared/configuration
   }
 }
 module storageAccountConnectionString '../../../infrastructure/shared/configuration-value.bicep' = {
-  name: '${systemName}-config-storage'
+  name: '${systemName}-connectionstring-storage'
   scope: resourceGroup(landingzoneEnvironment.resourceGroup)
   params: {
     appConfigurationName: landingzoneEnvironment.appConfiguration
