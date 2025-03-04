@@ -289,7 +289,7 @@ resource cosmosEndpoint 'Microsoft.AppConfiguration/configurationStores/keyValue
   }
 }
 resource cosmosConnectionString 'Microsoft.AppConfiguration/configurationStores/keyValues@2023-09-01-preview' = {
-  name: 'ConnectionStrings:votr'
+  name: 'ConnectionStrings:surveys'
   parent: appConfiguration
   properties: {
     value: 'AccountEndpoint=${cosmosDb.properties.documentEndpoint}'

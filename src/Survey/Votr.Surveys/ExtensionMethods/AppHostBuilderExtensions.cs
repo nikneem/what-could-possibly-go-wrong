@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Text.Json;
+using Azure.Identity;
 using Votr.Surveys.Abstractions;
 using Votr.Surveys.Services;
 
@@ -18,7 +19,12 @@ public static class AppHostBuilderExtensions
         builder.AddAzureCosmosClient("surveys", configureClientOptions: options =>
         {
             options.UseSystemTextJsonSerializerWithOptions = JsonSerializerOptions.Web;
-        });
+
+        },
+            configureSettings: settings =>
+            {
+                settings.Credential = new DefaultAzureCredential();
+            });
 
         return builder;
     }
