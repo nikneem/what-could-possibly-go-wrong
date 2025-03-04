@@ -1,3 +1,4 @@
+using Aspire.Hosting.Azure;
 using Microsoft.Extensions.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
@@ -8,7 +9,7 @@ var cosmos = builder.AddAzureCosmosDB("cosmos")
     .WithExternalHttpEndpoints();
 var cache = builder.AddRedis("cache")
     .WithRedisInsight();
-var signalR = builder.AddAzureSignalR("signalr");
+var signalR = builder.AddAzureSignalR("signalr", AzureSignalRServiceMode.Default);
 
 if (builder.Environment.IsDevelopment())
 {
@@ -58,6 +59,8 @@ var votesApi = builder.AddProject<Projects.Votr_Votes_Api>("votr-votes-api")
 //    .WithDaprSidecar(options);
 
 builder.AddProject<Projects.Votr_ReverseProxy_Api>("votr-reverseproxy-api")
+    .WaitFor(surveysApi)
+    .WaitFor(votesApi)
     .WithReference(surveysApi)
     .WithReference(votesApi);
 

@@ -1,3 +1,4 @@
+using Votr.Core.Realtime;
 using Votr.Surveys.Data.CosmosDb.ExtensionMethods;
 using Votr.Surveys.ExtensionMethods;
 
@@ -14,6 +15,8 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+//app.MapHub<VotrHub>("/api/hubs/votr");
 
 app.MapDefaultEndpoints();
 
