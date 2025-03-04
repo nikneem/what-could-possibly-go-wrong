@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Aspire.Microsoft.Azure.Cosmos" Version="9.1.0" />
     <PackageReference Include="Microsoft.Azure.SignalR" Version="1.30.2" />
   </ItemGroup>
 

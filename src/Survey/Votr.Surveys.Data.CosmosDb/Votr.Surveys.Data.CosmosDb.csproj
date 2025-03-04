@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.47.2" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Votr.Surveys\Votr.Surveys.csproj" />
   </ItemGroup>
 
