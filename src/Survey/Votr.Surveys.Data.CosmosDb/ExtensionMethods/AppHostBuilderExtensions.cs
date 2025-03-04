@@ -11,6 +11,7 @@ public static class AppHostBuilderExtensions
     public static IHostApplicationBuilder WithCosmosDbRepository(this IHostApplicationBuilder builder)
     {
         builder.Services.AddScoped<ISurveysRepository, SurveysRepository>();
+        builder.Services.AddSignalR().AddNamedAzureSignalR("sr");
         return builder;
     }
 

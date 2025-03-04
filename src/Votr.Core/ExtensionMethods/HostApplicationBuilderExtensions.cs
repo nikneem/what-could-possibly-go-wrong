@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Votr.Core.Abstractions.Caching;
 using Votr.Core.Configuration;
 using Votr.Core.Identity;
 
@@ -63,9 +64,11 @@ public static class HostApplicationBuilderExtensions
             Console.WriteLine(ex.ToString());
         }
 
-        builder.Services.AddSingleton<IValidateOptions<AzureServiceConfiguration>, AzureServiceConfigurationValidation>();
-
         var azureServicesSection = builder.Configuration.GetSection(AzureServiceConfiguration.DefaultSectionName);
+        if (!builder.Environment.IsDevelopment())
+        {
+            builder.Services.AddSingleton<IValidateOptions<AzureServiceConfiguration>, AzureServiceConfigurationValidation>();
+        }
         builder.Services.AddOptions<AzureServiceConfiguration>().Bind(azureServicesSection).ValidateOnStart();
         builder.Services.AddVotrCoreServices();
         builder.AddRedisClient("cache");

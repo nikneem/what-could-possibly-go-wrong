@@ -1,14 +1,16 @@
-using System.Collections.Immutable;
-using CommunityToolkit.Aspire.Hosting.Dapr;
+using Aspire.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
 var storage = builder.AddAzureStorage("storage");
-var cosmos = builder.AddAzureCosmosDB("cosmos");
-var cache = builder.AddRedis("cache");
-
-
+var cosmos = builder.AddAzureCosmosDB("cosmos")
+    .WithHttpEndpoint(51234, 1234, "explorer-port")
+    .WithExternalHttpEndpoints();
+var cache = builder.AddRedis("cache")
+    .WithRedisInsight();
+var signalR = builder.AddAzureSignalR("signalr");
 
 if (builder.Environment.IsDevelopment())
 {
@@ -23,6 +25,7 @@ if (builder.Environment.IsDevelopment())
     });
 #pragma warning restore ASPIRECOSMOSDB001
 
+    signalR.RunAsEmulator();
 }
 
 var database = cosmos.AddCosmosDatabase("votr");
@@ -37,12 +40,17 @@ var tables = storage.AddTables("votes");
 
 var surveysApi = builder.AddProject<Projects.Votr_Surveys_Api>("votr-surveys-api")
     .WaitFor(cosmos)
-    .WithReference(database)
-    .WithReference(cache);
+    .WithReference(container)
+    .WithReference(cache)
+    .WithReference(signalR)
+    .WithEnvironment("AzureServices:CosmosDbDatabase", "votr")
+    .WithEnvironment("AzureServices:SurveysContainer", "surveys");
+
 //    .WithDaprSidecar(options);
 
 var votesApi = builder.AddProject<Projects.Votr_Votes_Api>("votr-votes-api")
     .WithReference(tables)
+    .WithReference(signalR)
     .WithReference(cache);
 //    .WithDaprSidecar(options);
 

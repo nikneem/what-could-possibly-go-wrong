@@ -8,13 +8,14 @@ using Votr.Votes.DomainModels;
 
 namespace Votr.Votes.Data.TableStorage;
 
-public class VotesRepository(TableServiceClient tableServiceClient, IOptions<VotesServiceConfiguration> options) : IVotesRepository
+public class VotesRepository(TableServiceClient tableServiceClient) : IVotesRepository
 {
+
+    private const string VotesTableName = "votes";
+
     public async Task<bool> Save(Vote vote, CancellationToken cancellationToken)
     {
-
-        var votesTableName = options.Value.Votes;
-        var tableClient = tableServiceClient.GetTableClient(votesTableName);
+        var tableClient = tableServiceClient.GetTableClient(VotesTableName);
         var entity = vote.ToEntity();
         var dirtyReviewsTable = await tableClient.UpsertEntityAsync(entity, TableUpdateMode.Replace, cancellationToken);
         return !dirtyReviewsTable.IsError;
@@ -23,8 +24,7 @@ public class VotesRepository(TableServiceClient tableServiceClient, IOptions<Vot
     public async Task<List<Vote>> ListPerQuestion( Guid surveyId, Guid questionId, CancellationToken cancellationToken)
     {
         var votes = new List<Vote>();
-        var votesTableName = options.Value.Votes;
-        var tableClient = tableServiceClient.GetTableClient(votesTableName);
+        var tableClient = tableServiceClient.GetTableClient(VotesTableName);
         var query = tableClient.QueryAsync<VoteEntity>(ent => ent.PartitionKey == questionId.ToString() && ent.SurveyId == surveyId);
         
         await foreach (var page in query.AsPages().WithCancellation(cancellationToken))

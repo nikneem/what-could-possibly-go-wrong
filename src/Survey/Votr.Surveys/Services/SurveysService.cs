@@ -1,9 +1,10 @@
 ﻿using System.Text.Json;
 using Azure.Core;
-using Azure.Messaging.WebPubSub;
-using Dapr.Client;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Votr.Core;
+using Votr.Core.Abstractions.Caching;
 using Votr.Core.Caching;
 using Votr.Core.Caching.Models;
 using Votr.Core.Configuration;
@@ -19,7 +20,11 @@ using Votr.Surveys.Mappings;
 
 namespace Votr.Surveys.Services;
 
-public class SurveysService(DaprClient daprClient, ISurveysRepository surveysRepository, IOptions<AzureServiceConfiguration> options) : ISurveysService
+public class SurveysService(
+    ISurveysRepository surveysRepository, 
+    IVotrCacheService cacheService, 
+    IOptions<AzureServiceConfiguration> options,
+    ILogger<SurveysService> logger) : ISurveysService
 {
     public async Task<VotrResponse<List<SurveyDetailsResponse>>> List(CancellationToken cancellationToken)
     {
@@ -117,12 +122,8 @@ public class SurveysService(DaprClient daprClient, ISurveysRepository surveysRep
             question.Id,
             question.Text,
             question.AnswerOptions.Select(a => new QuestionAnswer(a.Id, a.Text, new List<Guid>())).ToList());
-        await daprClient.SaveStateAsync("votr-state-store", cacheKey, votesState, metadata: new Dictionary<string, string>()
-        {
-            {
-                "ttlInSeconds", "3600" // Cache for one hour
-            }
-        }, cancellationToken: cancellationToken);
+
+        await cacheService.SetAsAsync(cacheKey, votesState, 60);
     }
 
     public async Task<WebPubsubConnectionResponse> CreateWebPubSubConnectionString(
@@ -130,42 +131,52 @@ public class SurveysService(DaprClient daprClient, ISurveysRepository surveysRep
         Guid voterId, 
         CancellationToken cancellationToken)
     {
-        var pubSubClient = GetWebPubSubServiceClient();
-        var clientAccess = await pubSubClient.GetClientAccessUriAsync(
-            userId: voterId.ToString(),
-            roles:
-            [
-                $"webpubsub.sendToGroup.{code}",
-                $"webpubsub.joinLeaveGroup.{code}"
-            ],
-            cancellationToken:cancellationToken);
 
-        return new WebPubsubConnectionResponse(clientAccess.ToString());
+        //var pubSubClient = GetWebPubSubServiceClient();
+        //var clientAccess = await pubSubClient.GetClientAccessUriAsync(
+        //    userId: voterId.ToString(),
+        //    roles:
+        //    [
+        //        $"webpubsub.sendToGroup.{code}",
+        //        $"webpubsub.joinLeaveGroup.{code}"
+        //    ],
+        //    cancellationToken:cancellationToken);
+
+        //return new WebPubsubConnectionResponse(clientAccess.ToString());
+        return new WebPubsubConnectionResponse("");
     }
 
 
     private async Task BroadcastQuestionActivated(Survey survey, Question question, CancellationToken cancellationToken)
     {
-        var pubSubClient = GetWebPubSubServiceClient();
-        var dataTransferObject = question.ToDetailsResponse();
-        var realtimeMessage = new RealtimeMessage<SurveyQuestion>(RealtimeMessage.SurveyQuestionActivated, dataTransferObject);
+        //try
+        //{
+        //    var pubSubClient = GetWebPubSubServiceClient();
+        //    var dataTransferObject = question.ToDetailsResponse();
+        //    var realtimeMessage =
+        //        new RealtimeMessage<SurveyQuestion>(RealtimeMessage.SurveyQuestionActivated, dataTransferObject);
 
-        var json = JsonSerializer.Serialize(realtimeMessage, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-        await pubSubClient.SendToGroupAsync(
-            group: survey.Code,
-            content: json,
-            contentType: ContentType.ApplicationJson);
+        //    var json = JsonSerializer.Serialize(realtimeMessage,
+        //        new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        //    await pubSubClient.SendToGroupAsync(
+        //        group: survey.Code,
+        //        content: json,
+        //        contentType: ContentType.ApplicationJson);
+        //}
+        //catch (Exception ex)
+        //{
+        //    logger.LogError(ex, "Failed to broadcast question activation message for real-time usage");
+        //}
     }
 
 
-    private WebPubSubServiceClient GetWebPubSubServiceClient()
-    {
-        var configurationOptions = options.Value;
-        var webPubSubEndpoint = new Uri(configurationOptions.WebPubSub);
-
-        var pubSubClient = new WebPubSubServiceClient(webPubSubEndpoint, options.Value.WebPubSubHub, CloudIdentity.GetCloudIdentity());
-        return pubSubClient;
-    }
+    //private WebPubSubServiceClient GetWebPubSubServiceClient()
+    //{
+    //    var configurationOptions = options.Value;
+    //    var webPubSubEndpoint = new Uri(configurationOptions.WebPubSub);
+    //    var pubSubClient = new WebPubSubServiceClient(webPubSubEndpoint, options.Value.WebPubSubHub, CloudIdentity.GetCloudIdentity());
+    //    return pubSubClient;
+    //}
 
 
     //public async Task<VotrResponse<SurveyDetailsResponse>> Update(

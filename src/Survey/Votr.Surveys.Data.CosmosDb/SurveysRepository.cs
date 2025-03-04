@@ -25,10 +25,11 @@ public class SurveysRepository (CosmosClient cosmos,
     public async Task<List<SurveyDetailsResponse>> List(CancellationToken cancellationToken)
     {
         var container  = GetContainer();
-        var queryable = container.GetItemLinqQueryable<SurveyEntity>()
-            .Where(ent => ent.EntityType == nameof(SurveyEntity))
-            .OrderByDescending(ent => ent.ExpiresOn)
+        var queryable = container.GetItemLinqQueryable<SurveyEntity>(allowSynchronousQueryExecution: true)
+            .Where(entity => entity.EntityType == nameof(SurveyEntity))
+            .Where(entity => entity.ExpiresOn > DateTimeOffset.UtcNow)
             .ToFeedIterator();
+
 
         var list = new List<SurveyDetailsResponse>();
         while (queryable.HasMoreResults)
@@ -37,7 +38,9 @@ public class SurveysRepository (CosmosClient cosmos,
             list.AddRange(batch.ToDetailsResponse());
         }
 
-        return list;
+        // TODO : Investigate why this sort fails
+        // Sorting fails on the CosmosDb side for some reason, so we have to do it here
+        return list.OrderByDescending(ent=> ent.ExpiresOn).ToList();
     }
 
     public async Task<Survey> Get(Guid id, CancellationToken cancellationToken)
@@ -77,13 +80,13 @@ public class SurveysRepository (CosmosClient cosmos,
             if (domainModel.TrackingState == TrackingState.New)
             {
                 var itemResponse = await container.CreateItemAsync(entity, cancellationToken: cancellationToken);
-                return itemResponse.StatusCode == HttpStatusCode.Created || itemResponse.StatusCode == HttpStatusCode.OK;
+                return itemResponse.StatusCode is HttpStatusCode.OK or HttpStatusCode.Created;
             }
 
             if (domainModel.TrackingState == TrackingState.Modified)
             {
                 var itemResponse = await container.UpsertItemAsync(entity, new PartitionKey(entity.Id.ToString()), cancellationToken: cancellationToken);
-                return itemResponse.StatusCode == HttpStatusCode.OK;
+                return itemResponse.StatusCode is HttpStatusCode.OK or HttpStatusCode.Created;
             }
             return false;
         }

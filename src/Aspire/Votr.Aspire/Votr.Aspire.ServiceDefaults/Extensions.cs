@@ -131,7 +131,6 @@ public static class Extensions
             app.UseCors(MyCorsPolicyName);
         }
 
-        app.MapSubscribeHandler();
         app.MapControllers();
         return app;
     }

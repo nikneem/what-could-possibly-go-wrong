@@ -1,9 +1,8 @@
-﻿using Dapr.Client;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using System.Text.Json;
 using Azure.Core;
-using Azure.Messaging.WebPubSub;
 using Votr.Core;
+using Votr.Core.Abstractions.Caching;
 using Votr.Core.Caching;
 using Votr.Core.Caching.Models;
 using Votr.Core.DataTransferObjects;
@@ -15,7 +14,7 @@ using Votr.Core.Configuration;
 
 namespace Votr.Votes.Services;
 
-public class VotesService(DaprClient daprClient, IVotesRepository repository, IOptions<AzureServiceConfiguration> options) : IVotesService
+public class VotesService( IVotesRepository repository, IVotrCacheService cacheService, IOptions<AzureServiceConfiguration> options) : IVotesService
 {
     public async Task<VotrResponse<QuestionVotesResponse>> StoreVote(Guid voterId, VoteCreateRequest requestData, CancellationToken cancellationToken)
     {
@@ -46,71 +45,48 @@ public class VotesService(DaprClient daprClient, IVotesRepository repository, IO
         CancellationToken cancellationToken)
     {
         var cacheKey = CacheName.QuestionVotes(surveyId, questionId);
-        var getVotesTask = repository.ListPerQuestion(surveyId, questionId, cancellationToken);
-        var votesStateTask = daprClient.GetStateAsync<QuestionVotesCacheDto>(
-            "votr-state-store",
-            cacheKey,
-            cancellationToken: cancellationToken);
+        var votes = await repository.ListPerQuestion(surveyId, questionId, cancellationToken);
 
-        await Task.WhenAll(getVotesTask, votesStateTask);
-
-        var votesState = votesStateTask.Result;
-        var groupedVotes = getVotesTask.Result.GroupBy(v => v.AnswerOption).Select(g => new
+        var votesState = await cacheService.GetAsAsync<QuestionVotesCacheDto>(cacheKey);
+        if (votesState != null)
         {
-            AnswerId = g.Key,
-            Voters = g.Select(v => v.Id).ToList()
-        }).ToList();
-        foreach (var vote in groupedVotes)
-        {
-            var answer = votesState.Answers.FirstOrDefault(a => a.AnswerId == vote.AnswerId);
-            if (answer != null)
+            var groupedVotes = votes.GroupBy(v => v.AnswerOption).Select(g => new
             {
-                answer.Voters.Clear();
-                answer.Voters.AddRange(vote.Voters);
-            }
-        }
-
-        await daprClient.SaveStateAsync(
-            "votr-state-store",
-            cacheKey,
-            votesState, metadata: new Dictionary<string, string>()
+                AnswerId = g.Key,
+                Voters = g.Select(v => v.Id).ToList()
+            }).ToList();
+            foreach (var vote in groupedVotes)
             {
+                var answer = votesState.Answers.FirstOrDefault(a => a.AnswerId == vote.AnswerId);
+                if (answer != null)
                 {
-                    "ttlInSeconds", "3600" // Cache for one hour
+                    answer.Voters.Clear();
+                    answer.Voters.AddRange(vote.Voters);
                 }
-            }, cancellationToken: cancellationToken);
+            }
 
-        return VotrResponse<QuestionVotesCacheDto>.Success(votesState);
+            await cacheService.SetAsAsync(cacheKey, votesState, 60);
+
+            return VotrResponse<QuestionVotesCacheDto>.Success(votesState);
+        }
+        return VotrResponse<QuestionVotesCacheDto>.Failure("Could not fetch question votes from cache");
     }
 
     private async Task<QuestionVotesCacheDto?> UpdateQuestionVotesInStateStore(Guid surveyId, Guid questionId, Guid answerId, Guid voterId, CancellationToken cancellationToken)
     {
         var cacheKey = CacheName.QuestionVotes(surveyId, questionId);
-        var votesState = await daprClient.GetStateAsync<QuestionVotesCacheDto>(
-            "votr-state-store",
-        cacheKey,
-            cancellationToken: cancellationToken);
+        var votesState = await cacheService.GetAsAsync<QuestionVotesCacheDto>(cacheKey);
         if (votesState != null)
         {
             // Remove the old vote if this voter has already voted
             var oldAnswer = votesState.Answers.FirstOrDefault(a => a.Voters.Contains(voterId));
-            if (oldAnswer != null)
-            {
-                oldAnswer.Voters.Remove(voterId);
-            }
+            oldAnswer?.Voters.Remove(voterId);
 
             var newAnswer = votesState.Answers.FirstOrDefault(a => a.AnswerId == answerId);
-            if (newAnswer != null)
-            {
-                newAnswer.Voters.Add(voterId);
-            }
+            newAnswer?.Voters.Add(voterId);
 
             // Save state
-            await daprClient.SaveStateAsync(
-                "votr-state-store",
-                cacheKey,
-            votesState,
-                cancellationToken: cancellationToken);
+            await cacheService.SetAsAsync(cacheKey, votesState, 60);
         }
 
         return votesState;
@@ -118,23 +94,23 @@ public class VotesService(DaprClient daprClient, IVotesRepository repository, IO
 
     private async Task BroadcastSurveyQuestionVotesChanged(QuestionVotesResponse votes, CancellationToken cancellationToken)
     {
-        var pubSubClient = GetWebPubSubServiceClient();
-        var realtimeMessage = new RealtimeMessage<QuestionVotesResponse>(RealtimeMessage.SurveyQuestionVotesChanged, votes);
+        //var pubSubClient = GetWebPubSubServiceClient();
+        //var realtimeMessage = new RealtimeMessage<QuestionVotesResponse>(RealtimeMessage.SurveyQuestionVotesChanged, votes);
 
-        var json = JsonSerializer.Serialize(realtimeMessage, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-        await pubSubClient.SendToGroupAsync(
-            group: votes.SurveyCode,
-            content: json,
-            contentType: ContentType.ApplicationJson);
+        //var json = JsonSerializer.Serialize(realtimeMessage, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        //await pubSubClient.SendToGroupAsync(
+        //    group: votes.SurveyCode,
+        //    content: json,
+        //    contentType: ContentType.ApplicationJson);
     }
 
-    private WebPubSubServiceClient GetWebPubSubServiceClient()
-    {
-        var configurationOptions = options.Value;
-        var webPubSubEndpoint = new Uri(configurationOptions.WebPubSub);
+    //private WebPubSubServiceClient GetWebPubSubServiceClient()
+    //{
+    //    var configurationOptions = options.Value;
+    //    var webPubSubEndpoint = new Uri(configurationOptions.WebPubSub);
 
-        var pubSubClient = new WebPubSubServiceClient(webPubSubEndpoint, options.Value.WebPubSubHub, CloudIdentity.GetCloudIdentity());
-        return pubSubClient;
-    }
+    //    var pubSubClient = new WebPubSubServiceClient(webPubSubEndpoint, options.Value.WebPubSubHub, CloudIdentity.GetCloudIdentity());
+    //    return pubSubClient;
+    //}
 
 }

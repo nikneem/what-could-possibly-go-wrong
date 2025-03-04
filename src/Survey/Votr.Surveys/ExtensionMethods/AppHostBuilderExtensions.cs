@@ -13,8 +13,9 @@ public static class AppHostBuilderExtensions
     public static IHostApplicationBuilder AddSurveysApi(this IHostApplicationBuilder builder)
     {
         builder.Services.AddScoped<ISurveysService, SurveysService>();
+        builder.Services.AddSignalR().AddNamedAzureSignalR("signalr");
 
-        builder.AddAzureCosmosClient("votr", configureClientOptions: options =>
+        builder.AddAzureCosmosClient("surveys", configureClientOptions: options =>
         {
             options.UseSystemTextJsonSerializerWithOptions = JsonSerializerOptions.Web;
         });
