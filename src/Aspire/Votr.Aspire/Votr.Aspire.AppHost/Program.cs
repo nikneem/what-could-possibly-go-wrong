@@ -2,14 +2,22 @@ using Microsoft.Extensions.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
+var resourceGroupName = builder.AddParameter("AzureResourceGroupName");
+var existingPubSubResourceName = builder.AddParameter("AzureWebPubSubResourceName");
+
+
 var storage = builder.AddAzureStorage("storage");
 var cosmos = builder.AddAzureCosmosDB("cosmos")
     .WithHttpEndpoint(51234, 1234, "explorer-port")
     .WithExternalHttpEndpoints();
 var cache = builder.AddRedis("cache")
     .WithRedisInsight();
-var webpubsub = builder.AddAzureWebPubSub("webpubsub").AddHub("votr");
-    
+var webpubsub = builder
+    .AddAzureWebPubSub("webpubsub")
+    .RunAsExisting(existingPubSubResourceName, resourceGroupName);
+    webpubsub.AddHub("votr");
+
+
 
 if (builder.Environment.IsDevelopment())
 {

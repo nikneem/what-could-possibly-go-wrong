@@ -1,9 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+﻿using System.Text.Json;
+using Azure.Core;
+using Azure.Messaging.WebPubSub;
+using Microsoft.Extensions.Logging;
+using Votr.Core;
 using Votr.Core.Abstractions.Caching;
 using Votr.Core.Caching;
 using Votr.Core.Caching.Models;
-using Votr.Core.Configuration;
 using Votr.Core.DataTransferObjects;
 using Votr.Surveys.Abstractions;
 using Votr.Surveys.DataTransferObjects;
@@ -18,8 +20,7 @@ namespace Votr.Surveys.Services;
 public class SurveysService(
     ISurveysRepository surveysRepository, 
     IVotrCacheService cacheService,
-    
-    IOptions<AzureServiceConfiguration> options,
+    WebPubSubServiceClient webPubSubClient,
     ILogger<SurveysService> logger) : ISurveysService
 {
     public async Task<VotrResponse<List<SurveyDetailsResponse>>> List(CancellationToken cancellationToken)
@@ -127,65 +128,38 @@ public class SurveysService(
         Guid voterId, 
         CancellationToken cancellationToken)
     {
+        var clientAccess = await webPubSubClient.GetClientAccessUriAsync(
+            userId: voterId.ToString(),
+            roles:
+            [
+                $"webpubsub.sendToGroup.{code}",
+                $"webpubsub.joinLeaveGroup.{code}"
+            ],
+            cancellationToken: cancellationToken);
 
-
-        //var pubSubClient = GetWebPubSubServiceClient();
-        //var clientAccess = await pubSubClient.GetClientAccessUriAsync(
-        //    userId: voterId.ToString(),
-        //    roles:
-        //    [
-        //        $"webpubsub.sendToGroup.{code}",
-        //        $"webpubsub.joinLeaveGroup.{code}"
-        //    ],
-        //    cancellationToken:cancellationToken);
-
-        //return new WebPubsubConnectionResponse(clientAccess.ToString());
-        return new WebPubsubConnectionResponse("");
+        return new WebPubsubConnectionResponse(clientAccess.ToString());
     }
 
 
     private async Task BroadcastQuestionActivated(Survey survey, Question question, CancellationToken cancellationToken)
     {
-        //try
-        //{
-        //    var pubSubClient = GetWebPubSubServiceClient();
-        //    var dataTransferObject = question.ToDetailsResponse();
-        //    var realtimeMessage =
-        //        new RealtimeMessage<SurveyQuestion>(RealtimeMessage.SurveyQuestionActivated, dataTransferObject);
+        try
+        {
+            var dataTransferObject = question.ToDetailsResponse();
+            var realtimeMessage =
+                new RealtimeMessage<SurveyQuestion>(RealtimeMessage.SurveyQuestionActivated, dataTransferObject);
 
-        //    var json = JsonSerializer.Serialize(realtimeMessage,
-        //        new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-        //    await pubSubClient.SendToGroupAsync(
-        //        group: survey.Code,
-        //        content: json,
-        //        contentType: ContentType.ApplicationJson);
-        //}
-        //catch (Exception ex)
-        //{
-        //    logger.LogError(ex, "Failed to broadcast question activation message for real-time usage");
-        //}
+            var json = JsonSerializer.Serialize(realtimeMessage,
+                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            await webPubSubClient.SendToGroupAsync(
+                group: survey.Code,
+                content: json,
+                contentType: ContentType.ApplicationJson);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to broadcast question activation message for real-time usage");
+        }
     }
-
-
-    //private WebPubSubServiceClient GetWebPubSubServiceClient()
-    //{
-    //    var configurationOptions = options.Value;
-    //    var webPubSubEndpoint = new Uri(configurationOptions.WebPubSub);
-    //    var pubSubClient = new WebPubSubServiceClient(webPubSubEndpoint, options.Value.WebPubSubHub, CloudIdentity.GetCloudIdentity());
-    //    return pubSubClient;
-    //}
-
-
-    //public async Task<VotrResponse<SurveyDetailsResponse>> Update(
-    //    SurveyUpdateRequest requestData,
-    //    CancellationToken cancellationToken)
-    //{
-    //    var survey = requestData.FromCreateModel();
-    //    if (await surveysRepository.Save(survey, cancellationToken))
-    //    {
-    //        return VotrResponse<SurveyDetailsResponse>.Success(survey.ToDetailsResponse());
-    //    }
-    //    return VotrResponse<SurveyDetailsResponse>.Failure("Failed to save survey");
-    //}
 
 }
