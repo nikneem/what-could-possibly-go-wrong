@@ -323,6 +323,13 @@ resource configPubSubEndpoint 'Microsoft.AppConfiguration/configurationStores/ke
     value: 'https://${webPubSub.properties.hostName}'
   }
 }
+resource configPubSubEndpointConnectionString 'Microsoft.AppConfiguration/configurationStores/keyValues@2023-09-01-preview' = {
+  name: 'ConnectionStrings:webpubsub'
+  parent: appConfiguration
+  properties: {
+    value: 'https://${webPubSub.properties.hostName}'
+  }
+}
 resource configPubSubHub 'Microsoft.AppConfiguration/configurationStores/keyValues@2023-09-01-preview' = {
   name: 'AzureServices:WebPubSubHub'
   parent: appConfiguration

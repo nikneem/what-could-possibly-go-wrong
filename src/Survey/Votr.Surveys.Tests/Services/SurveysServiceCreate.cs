@@ -1,8 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+﻿using Azure.Messaging.WebPubSub;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Votr.Core.Abstractions.Caching;
-using Votr.Core.Configuration;
 using Votr.Surveys.Abstractions;
 using Votr.Surveys.DataTransferObjects.Create;
 using Votr.Surveys.DomainModels;
@@ -21,7 +20,7 @@ namespace Votr.Surveys.Tests.Services
             _surveysService = new SurveysService(
                 _surveysRepositoryMock.Object,
                 It.IsAny<IVotrCacheService>(),
-                It.IsAny<IOptions<AzureServiceConfiguration>>(),
+                It.IsAny<WebPubSubServiceClient>(),
                 It.IsAny<ILogger<SurveysService>>());
         }
 

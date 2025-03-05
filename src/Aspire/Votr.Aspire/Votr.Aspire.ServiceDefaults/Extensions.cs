@@ -55,6 +55,11 @@ public static class Extensions
             builder.AddVotrCore();
         }
 
+        builder.AddAzureWebPubSubServiceClient("webpubsub", settings =>
+        {
+            settings.HubName = "votr";
+        });
+
         return builder;
     }
 
