@@ -1,4 +1,3 @@
-using Aspire.Hosting.Azure;
 using Microsoft.Extensions.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
@@ -9,7 +8,8 @@ var cosmos = builder.AddAzureCosmosDB("cosmos")
     .WithExternalHttpEndpoints();
 var cache = builder.AddRedis("cache")
     .WithRedisInsight();
-var signalR = builder.AddAzureSignalR("signalr", AzureSignalRServiceMode.Default);
+var webpubsub = builder.AddAzureWebPubSub("webpubsub");
+    
 
 if (builder.Environment.IsDevelopment())
 {
@@ -24,39 +24,30 @@ if (builder.Environment.IsDevelopment())
     });
 #pragma warning restore ASPIRECOSMOSDB001
 
-    signalR.RunAsEmulator();
 }
 
 var database = cosmos.AddCosmosDatabase("votr");
 var container = database.AddContainer("surveys", "/id");
 var tables = storage.AddTables("votes");
 
-//builder.AddDapr();
-//var options = new DaprSidecarOptions
-//{
-//    ResourcesPaths = ImmutableHashSet.Create(Directory.GetCurrentDirectory() + "/../../../../dapr/components")
-//};
 
 var surveysApi = builder.AddProject<Projects.Votr_Surveys_Api>("votr-surveys-api")
     .WaitFor(cosmos)
     .WaitFor(cache)
-    .WaitFor(signalR)
+    .WaitFor(webpubsub)
     .WithReference(container)
     .WithReference(cache)
-    .WithReference(signalR)
+    .WithReference(webpubsub)
     .WithEnvironment("AzureServices:CosmosDbDatabase", "votr")
     .WithEnvironment("AzureServices:SurveysContainer", "surveys");
-
-//    .WithDaprSidecar(options);
 
 var votesApi = builder.AddProject<Projects.Votr_Votes_Api>("votr-votes-api")
     .WaitFor(storage)
     .WaitFor(cache)
-    .WaitFor(signalR)
+    .WaitFor(webpubsub)
     .WithReference(tables)
-    .WithReference(signalR)
+    .WithReference(webpubsub)
     .WithReference(cache);
-//    .WithDaprSidecar(options);
 
 builder.AddProject<Projects.Votr_ReverseProxy_Api>("votr-reverseproxy-api")
     .WaitFor(surveysApi)
