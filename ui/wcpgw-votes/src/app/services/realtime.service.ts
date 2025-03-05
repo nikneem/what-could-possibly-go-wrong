@@ -103,7 +103,6 @@ export class RealtimeService {
     var eventMessage = JSON.parse(message);
     if (eventMessage.type === 'message') {
       const event = eventMessage.data as IRealtimeEvent<any>;
-      console.log(event);
       if (event.messageType === 'SurveyQuestionActivated') {
         const activatedPoll = event.payload as IQuestion;
         this.store.dispatch(

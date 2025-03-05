@@ -1,9 +1,12 @@
 import { Component, effect, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Store } from '@ngrx/store';
 import { RealtimeService } from '@services/realtime.service';
 import { SurveysService } from '@services/surveys.service';
+import { IAppState } from '@shared-state/app.state';
 import { IQuestionVotes } from '@shared-state/models/votr.models';
+import { SurveyActions } from '@shared-state/survey/survey.actions';
 import { IQuestion, ISurvey } from '@shared-state/survey/survey.models';
 import { Subscription, map, catchError, of } from 'rxjs';
 
@@ -19,6 +22,8 @@ export class GraphLandingPageComponent implements OnInit, OnDestroy {
   isLoading: boolean = false;
   survey?: ISurvey;
   activeQuestion?: IQuestion;
+  surveyCode?: string;
+
   private surveysSubscription?: Subscription;
 
   form?: FormGroup;
@@ -26,13 +31,37 @@ export class GraphLandingPageComponent implements OnInit, OnDestroy {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private surveysService: SurveysService,
     private realtimeService: RealtimeService,
-    private router: Router
+    private store: Store<IAppState>
   ) {
     effect(() => {
       this.votes = this.realtimeService.votesReceived();
     });
+
+    this.surveysSubscription = this.store
+      .select((str) => str.surveys)
+      .subscribe((state) => {
+        this.isLoading = state.isLoading;
+        this.errorMessage = state.errorMessage;
+        this.survey = state.survey;
+        if (state.survey) {
+          if (this.surveyCode !== state.survey.code) {
+            this.realtimeService.connect(
+              state.survey.code,
+              '00000000-0000-0000-0000-000000000001'
+            );
+            this.findActiveQuestion();
+          }
+        }
+        if (
+          state.activeQuestion &&
+          state.activeQuestion.id !== this.activeQuestion?.id
+        ) {
+          this.activeQuestion = state.activeQuestion;
+        }
+
+        this.surveyCode = state.survey?.code;
+      });
   }
 
   getProgressFor(optionId: string): number {
@@ -46,46 +75,24 @@ export class GraphLandingPageComponent implements OnInit, OnDestroy {
   }
 
   private loadSurvey(code: string) {
-    this.surveysSubscription?.unsubscribe();
-    if (!this.isLoading) {
-      this.pageError = undefined;
-      this.isLoading = true;
-      this.surveysSubscription = this.surveysService
-        .getSurvey(code)
-        .pipe(
-          map((response) => response.data),
-          catchError((error) => {
-            console.error(error);
-            return of(null);
-          })
-        )
-        .subscribe((survey: ISurvey | null | undefined) => {
-          this.isLoading = false;
-          if (survey) {
-            this.survey = survey;
-            this.findActiveQuestion();
-            this.connectRealtimeService();
-          } else {
-            this.pageError = 'Survey not found';
-          }
-        });
+    if (this.surveyCode !== code) {
+      this.store.dispatch(SurveyActions.surveyLoad({ surveyCode: code }));
     }
   }
   private findActiveQuestion() {
     if (this.survey) {
-      this.activeQuestion = this.survey.questions.find(
-        (question: IQuestion) => question.isActive
+      const activeQuestion = this.survey.questions.find(
+        (question) => question.isActive
       );
+      if (activeQuestion) {
+        this.store.dispatch(
+          SurveyActions.questionActivated({ question: activeQuestion })
+        );
+      }
     }
+    return undefined;
   }
-  private connectRealtimeService() {
-    if (this.survey) {
-      this.realtimeService.connect(
-        this.survey.code,
-        '00000000-0000-0000-0000-000000000001'
-      );
-    }
-  }
+
   ngOnInit(): void {
     this.activatedRoute.params.subscribe((params) => {
       const surveyCode = params['code'];

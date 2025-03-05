@@ -1,4 +1,8 @@
-﻿using Microsoft.Extensions.Options;
+﻿using System.Text.Json;
+using Azure.Core;
+using Azure.Messaging.WebPubSub;
+using Microsoft.Extensions.Options;
+using Votr.Core;
 using Votr.Core.Abstractions.Caching;
 using Votr.Core.Caching;
 using Votr.Core.Caching.Models;
@@ -10,7 +14,7 @@ using Votr.Core.Configuration;
 
 namespace Votr.Votes.Services;
 
-public class VotesService( IVotesRepository repository, IVotrCacheService cacheService, IOptions<AzureServiceConfiguration> options) : IVotesService
+public class VotesService( IVotesRepository repository, IVotrCacheService cacheService, WebPubSubServiceClient pubSubClient, IOptions<AzureServiceConfiguration> options) : IVotesService
 {
     public async Task<VotrResponse<QuestionVotesResponse>> StoreVote(Guid voterId, VoteCreateRequest requestData, CancellationToken cancellationToken)
     {
@@ -90,23 +94,15 @@ public class VotesService( IVotesRepository repository, IVotrCacheService cacheS
 
     private async Task BroadcastSurveyQuestionVotesChanged(QuestionVotesResponse votes, CancellationToken cancellationToken)
     {
-        //var pubSubClient = GetWebPubSubServiceClient();
-        //var realtimeMessage = new RealtimeMessage<QuestionVotesResponse>(RealtimeMessage.SurveyQuestionVotesChanged, votes);
+        var realtimeMessage = new RealtimeMessage<QuestionVotesResponse>(RealtimeMessage.SurveyQuestionVotesChanged, votes);
 
-        //var json = JsonSerializer.Serialize(realtimeMessage, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-        //await pubSubClient.SendToGroupAsync(
-        //    group: votes.SurveyCode,
-        //    content: json,
-        //    contentType: ContentType.ApplicationJson);
+        var json = JsonSerializer.Serialize(realtimeMessage, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        await pubSubClient.SendToGroupAsync(
+            group: votes.SurveyCode,
+            content: json,
+            contentType: ContentType.ApplicationJson);
     }
 
-    //private WebPubSubServiceClient GetWebPubSubServiceClient()
-    //{
-    //    var configurationOptions = options.Value;
-    //    var webPubSubEndpoint = new Uri(configurationOptions.WebPubSub);
 
-    //    var pubSubClient = new WebPubSubServiceClient(webPubSubEndpoint, options.Value.WebPubSubHub, CloudIdentity.GetCloudIdentity());
-    //    return pubSubClient;
-    //}
 
 }
