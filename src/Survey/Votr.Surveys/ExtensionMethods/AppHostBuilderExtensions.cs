@@ -14,7 +14,6 @@ public static class AppHostBuilderExtensions
     public static IHostApplicationBuilder AddSurveysApi(this IHostApplicationBuilder builder)
     {
         builder.Services.AddScoped<ISurveysService, SurveysService>();
-        builder.Services.AddSignalR().AddNamedAzureSignalR("signalr");
 
         builder.AddAzureCosmosClient("surveys", configureClientOptions: options =>
         {

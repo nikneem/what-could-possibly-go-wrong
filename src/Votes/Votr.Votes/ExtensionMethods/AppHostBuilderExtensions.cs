@@ -13,7 +13,6 @@ public static class AppHostBuilderExtensions
     public static IHostApplicationBuilder AddVotesApi(this IHostApplicationBuilder builder)
     {
         builder.Services.AddScoped<IVotesService, VotesService>();
-        builder.Services.AddSignalR().AddNamedAzureSignalR("signalr");
         return builder;
     }
 

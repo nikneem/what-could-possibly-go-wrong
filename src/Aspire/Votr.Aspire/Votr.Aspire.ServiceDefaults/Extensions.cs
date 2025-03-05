@@ -55,6 +55,8 @@ public static class Extensions
             builder.AddVotrCore();
         }
 
+        builder.AddAzureWebPubSubServiceClient("webpubsub");
+
         return builder;
     }
 

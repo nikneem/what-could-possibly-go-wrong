@@ -8,7 +8,7 @@ var cosmos = builder.AddAzureCosmosDB("cosmos")
     .WithExternalHttpEndpoints();
 var cache = builder.AddRedis("cache")
     .WithRedisInsight();
-var webpubsub = builder.AddAzureWebPubSub("webpubsub");
+var webpubsub = builder.AddAzureWebPubSub("webpubsub").AddHub("votr");
     
 
 if (builder.Environment.IsDevelopment())
@@ -17,6 +17,7 @@ if (builder.Environment.IsDevelopment())
     {
         options.WithLifetime(ContainerLifetime.Persistent);
     });
+
 #pragma warning disable ASPIRECOSMOSDB001
     cosmos.RunAsPreviewEmulator(options =>
     {
