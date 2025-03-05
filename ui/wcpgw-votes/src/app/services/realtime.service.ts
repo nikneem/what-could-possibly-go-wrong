@@ -57,7 +57,6 @@ export class RealtimeService {
     if (this.surveyCode) {
       this.pubsubClient = new WebSocket(url, 'json.webpubsub.azure.v1');
       this.pubsubClient.onopen = (evt) => {
-        console.log(`Realtime connected to session ${self.surveyCode}`);
         if (self.surveyCode) {
           this.joinGroup(self.surveyCode);
         }
@@ -71,7 +70,6 @@ export class RealtimeService {
 
   public joinGroup(groupName: string) {
     if (this.pubsubClient?.readyState === this.pubsubClient?.OPEN) {
-      console.log(`Joining group ${groupName}`);
       this.pubsubClient?.send(
         JSON.stringify({
           type: 'joinGroup',
@@ -83,7 +81,6 @@ export class RealtimeService {
   }
   public leaveGroup(groupName: string) {
     if (this.pubsubClient?.readyState === this.pubsubClient?.OPEN) {
-      console.log(`Joining group ${groupName}`);
       this.pubsubClient?.send(
         JSON.stringify({
           type: 'joinGroup',
@@ -103,23 +100,16 @@ export class RealtimeService {
     var eventMessage = JSON.parse(message);
     if (eventMessage.type === 'message') {
       const event = eventMessage.data as IRealtimeEvent<any>;
-      console.log('Received event', event);
       if (event.messageType === 'SurveyQuestionActivated') {
         const activatedPoll = event.payload as IQuestion;
         this.store.dispatch(
           SurveyActions.questionActivated({ question: activatedPoll })
         );
-        //this.store.dispatch(pollActivated({ poll: activatedPoll }));
       }
       if (event.messageType === 'SurveyQuestionVotesChanged') {
         const questionVotes = event.payload as IQuestionVotes;
         this.handleVotesReceived(questionVotes);
-        //this.store.dispatch(pollActivated({ poll: activatedPoll }));
       }
-      // if (event.eventName === 'poll-votes') {
-      //   const incomingVotes = event.payload as Array<IPollVoteDto>;
-      //   this.store.dispatch(voteSeriesUpdate({ dto: incomingVotes }));
-      // }
     }
   }
 
