@@ -1,4 +1,10 @@
-# 50 Years of software development - Waht could possibly go wrong?
+# 20 Years of software development - What could possibly go wrong?
+
+Every great developer starts with a blinking cursor and an overwhelming sense of curiosity. The first twenty years in software development are a journey of trial and triumph, where knowledge compounds like well-structured code and experience shapes not just technical skill but mindset.
+
+From the wide-eyed junior, eager to write code but still learning the fundamentals, to the confident medior, who starts to see patterns and best practices emerge. The senior years bring architectural thinking and mentorship, bridging the gap between business and technology. And for those who persist, the path to principal leads to a place where impact extends far beyond code—shaping systems, strategies, and the next generation of engineers.
+
+This is the story of that journey. A story of learning, failing, growing, and eventually leading. Not every developer follows the same path, but the lessons learned along the way are universal.
 
 ## VotR
 
