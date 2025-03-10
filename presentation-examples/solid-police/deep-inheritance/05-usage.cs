@@ -9,18 +9,15 @@ class Program
         inventoryReport.Generate();
 
         // Sales report exported to JSON
-        salesReport.SetExporter(new JsonExporter());
         Console.WriteLine("Sales Report (JSON):");
-        Console.WriteLine(salesReport.Export());
+        Console.WriteLine(salesReport.Export(new JsonExporter()));
 
         // Inventory report exported to XML
-        inventoryReport.SetExporter(new XmlExporter());
         Console.WriteLine("\nInventory Report (XML):");
-        Console.WriteLine(inventoryReport.Export());
+        Console.WriteLine(inventoryReport.Export(new XmlExporter()));
 
         // Sales report exported to CSV
-        salesReport.SetExporter(new CsvExporter());
         Console.WriteLine("\nSales Report (CSV):");
-        Console.WriteLine(salesReport.Export());
+        Console.WriteLine(salesReport.Export(new CsvExporter()));
     }
 }
