@@ -2,10 +2,20 @@ class Program
 {
     static void Main()
     {
-        var salesReport = new SalesReport { Title = "Q1 Sales", CreatedOn = DateTime.Now, Author = "John Doe" };
+        var salesReport = new SalesReport
+        {
+            Title = "Q1 Sales",
+            CreatedOn = DateTime.Now,
+            Author = "John Doe"
+        };
         salesReport.Generate();
 
-        var inventoryReport = new InventoryReport { Title = "Stock Report", CreatedOn = DateTime.Now, Author = "Jane Smith" };
+        var inventoryReport = new InventoryReport
+        {
+            Title = "Stock Report",
+            CreatedOn = DateTime.Now,
+            Author = "Jane Smith"
+        };
         inventoryReport.Generate();
 
         // Sales report exported to JSON
