@@ -1,7 +1,7 @@
 /*
 20 Years of software development - What could possibly go wrong?
 
-elow is a complicated example that demonstrates excessive inheritance
+Below is a complicated example that demonstrates excessive inheritance
 across multiple levels, leading to rigid and hard-to-maintain code.
 The developer initially thought that having a structured hierarchy
 would help, but now, adding new features (like an XML export)

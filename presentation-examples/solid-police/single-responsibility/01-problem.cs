@@ -7,9 +7,11 @@ making SRP more of a guideline rather than an absolute rule.
 Let's break it down with an example where enforcing "true" SRP makes
 things worse and where practicality beats purity.
 
-A common example of SRP states that a class should have only one reason to change. But what does a "reason to change" mean? Consider a simple Invoice class:
-According to strict SRP:
+A common example of SRP states that a class should have only one reason
+to change. But what does a "reason to change" mean? Consider a simple
+Invoice class:
 
+According to strict SRP
 Printing is a UI concern → Should be in a different class.
 Saving is a persistence concern → Should be in a different class.
 */
