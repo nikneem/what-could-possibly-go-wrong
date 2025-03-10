@@ -7,8 +7,8 @@ public class Constants
 
 public class ServiceName
 {
-    public const string SurveysApi = "votr-surveys-api";
-    public const string VotesApi = "votr-votes-api";
+    public const string SurveysApi = "mainApi";
+    public const string VotesApi = "mainApi";
 }
 
 public class HttpHeaders

@@ -22,8 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\ReverseProxy\Votr.ReverseProxy.Api\Votr.ReverseProxy.Api.csproj" />
-    <ProjectReference Include="..\..\..\Survey\Votr.Surveys.Api\Votr.Surveys.Api.csproj" />
-    <ProjectReference Include="..\..\..\Votes\Votr.Votes.Api\Votr.Votes.Api.csproj" />
+    <ProjectReference Include="..\..\..\Votr.Api\Votr.Api.csproj" />
   </ItemGroup>
 
 </Project>

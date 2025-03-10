@@ -40,29 +40,26 @@ var container = database.AddContainer("surveys", "/id");
 var tables = storage.AddTables("votes");
 
 
-var surveysApi = builder.AddProject<Projects.Votr_Surveys_Api>("votr-surveys-api")
+var mainApi = builder.AddProject<Projects.Votr_Api>("mainApi")
     .WaitFor(cosmos)
     .WaitFor(cache)
     .WaitFor(webpubsub)
+    .WaitFor(storage)
     .WithReference(container)
     .WithReference(cache)
     .WithReference(webpubsub)
+    .WithReference(tables)
     .WithEnvironment("AzureServices:CosmosDbDatabase", "votr")
     .WithEnvironment("AzureServices:SurveysContainer", "surveys");
 
-var votesApi = builder.AddProject<Projects.Votr_Votes_Api>("votr-votes-api")
-    .WaitFor(storage)
-    .WaitFor(cache)
-    .WaitFor(webpubsub)
-    .WithReference(tables)
-    .WithReference(webpubsub)
-    .WithReference(cache);
 
 builder.AddProject<Projects.Votr_ReverseProxy_Api>("votr-reverseproxy-api")
-    .WaitFor(surveysApi)
-    .WaitFor(votesApi)
-    .WithReference(surveysApi)
-    .WithReference(votesApi);
+    .WaitFor(mainApi)
+    .WaitFor(mainApi)
+    .WithReference(mainApi)
+    .WithReference(mainApi);
+
+
 
 builder.Build().Run();
 
