@@ -23,8 +23,8 @@ Monolith – A single-application architecture where all features are contained 
 Choosing the Right Branch
 To ensure you're working with the correct project structure, please check the appropriate Git branch:
 
-[main branch](https://github.com/nikneem/what-could-possibly-go-wrong) – Contains the microservices-based implementation.
-[monolith branch](https://github.com/nikneem/what-could-possibly-go-wrong/tree/modular-monolith) – Contains the monolithic implementation.
+[main branch](https://github.com/nikneem/what-could-possibly-go-wrong) – Contains the microservices-based implementation.  
+[monolith branch](https://github.com/nikneem/what-could-possibly-go-wrong/tree/modular-monolith) – Contains the monolithic implementation.  
 Make sure to switch to the correct branch in your version control system before exploring the code or making changes.
 
 ---
