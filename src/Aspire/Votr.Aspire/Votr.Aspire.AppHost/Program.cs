@@ -40,7 +40,7 @@ var container = database.AddContainer("surveys", "/id");
 var tables = storage.AddTables("votes");
 
 
-var mainApi = builder.AddProject<Projects.Votr_Api>("mainApi")
+var mainApi = builder.AddProject<Projects.Votr_Api>("votr-api")
     .WaitFor(cosmos)
     .WaitFor(cache)
     .WaitFor(webpubsub)
@@ -55,8 +55,6 @@ var mainApi = builder.AddProject<Projects.Votr_Api>("mainApi")
 
 builder.AddProject<Projects.Votr_ReverseProxy_Api>("votr-reverseproxy-api")
     .WaitFor(mainApi)
-    .WaitFor(mainApi)
-    .WithReference(mainApi)
     .WithReference(mainApi);
 
 

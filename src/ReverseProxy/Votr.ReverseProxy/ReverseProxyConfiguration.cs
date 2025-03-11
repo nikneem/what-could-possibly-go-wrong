@@ -7,8 +7,7 @@ namespace Votr.ReverseProxy;
 public class ReverseProxyConfiguration : IProxyConfigProvider
 {
 
-    private const string SurveysCluster = "surveysCluster";
-    private const string VotesCluster = "votesCluster";
+    private const string MainApiCluster = "surveysCluster";
 
     public ReverseProxyConfiguration()
     {
@@ -17,7 +16,7 @@ public class ReverseProxyConfiguration : IProxyConfigProvider
             new RouteConfig
             {
                 RouteId = "surveysRoute",
-                ClusterId = SurveysCluster,
+                ClusterId = MainApiCluster,
                 Match = new RouteMatch
                 {
                     Path = "/surveys/{**catch-all}"
@@ -25,7 +24,7 @@ public class ReverseProxyConfiguration : IProxyConfigProvider
             },            new RouteConfig
             {
                 RouteId = "votesRoute",
-                ClusterId = VotesCluster,
+                ClusterId = MainApiCluster,
                 Match = new RouteMatch
                 {
                     Path = "/votes/{**catch-all}"
@@ -38,37 +37,20 @@ public class ReverseProxyConfiguration : IProxyConfigProvider
         {
             new ClusterConfig
             {
-                ClusterId = SurveysCluster,
+                ClusterId = MainApiCluster,
                 LoadBalancingPolicy = LoadBalancingPolicies.RoundRobin,
                 Destinations = new Dictionary<string, DestinationConfig>
                 {
                     {
                         "default", new DestinationConfig
                         {
-                            Address = $"http://{ServiceName.SurveysApi}/api",
-                            Health = $"http://{ServiceName.SurveysApi}/health",
-                            Host = ServiceName.SurveysApi
+                            Address = $"http://{ServiceName.VotrApi}/api",
+                            Health = $"http://{ServiceName.VotrApi}/health",
+                            Host = ServiceName.VotrApi
                         }
                     }
                 }
-            },
-            new ClusterConfig
-            {
-                ClusterId = VotesCluster,
-                LoadBalancingPolicy = LoadBalancingPolicies.RoundRobin,
-                Destinations = new Dictionary<string, DestinationConfig>
-                {
-                    {
-                        "default", new DestinationConfig
-                        {
-                            Address = $"http://{ServiceName.VotesApi}/api",
-                            Health = $"http://{ServiceName.VotesApi}/health",
-                            Host = ServiceName.VotesApi
-                        }
-                    }
-                }
-            },
-
+            }
         };
 
         _config = new ReverseProxyMemoryConfig(routeConfigs, clusterConfigs);
