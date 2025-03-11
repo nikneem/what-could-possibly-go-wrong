@@ -14,6 +14,21 @@ This repository is part of the conference session **"50 Years of Development Exp
 
 ---
 
+## VotR Project Structure
+
+VotR is developed in two distinct project structures:
+
+Microservices Solution – A distributed architecture where different components of VotR are implemented as independent services.
+Monolith – A single-application architecture where all features are contained within a unified codebase.
+Choosing the Right Branch
+To ensure you're working with the correct project structure, please check the appropriate Git branch:
+
+(https://github.com/nikneem/what-could-possibly-go-wrong)[main branch] – Contains the microservices-based implementation.
+(https://github.com/nikneem/what-could-possibly-go-wrong/tree/modular-monolith)[monolith branch] – Contains the monolithic implementation.
+Make sure to switch to the correct branch in your version control system before exploring the code or making changes.
+
+---
+
 ## 🎯 Features
 
 - **Session Management**: Speakers can pre-define sessions, questions, and multiple-choice answer options.
