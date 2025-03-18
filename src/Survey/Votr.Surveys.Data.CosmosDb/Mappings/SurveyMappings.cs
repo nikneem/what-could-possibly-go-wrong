@@ -52,7 +52,7 @@ public static class SurveyMappings
 
     public static IEnumerable<SurveyDetailsResponse> ToDetailsResponse(this IEnumerable<SurveyEntity> surveys)
     {
-        return surveys.Select(s => s.ToDetailsResponse());
+            return surveys.Select(s => s.ToDetailsResponse());
         }
     public static SurveyDetailsResponse ToDetailsResponse(this SurveyEntity survey)
     {
