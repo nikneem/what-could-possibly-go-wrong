@@ -58,6 +58,7 @@ jobs:
         with:
           name: template
           path: infrastructure/*.json
+          retention-days: 7
 
   devenvironment:
     if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.event.action != 'closed')
