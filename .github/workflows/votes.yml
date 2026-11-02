@@ -64,6 +64,7 @@ jobs:
         with:
           name: template
           path: "${{env.INFRA_PATH}}/*.json"
+          retention-days: 7
 
   build:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
